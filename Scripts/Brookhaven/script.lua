@@ -1,38 +1,33 @@
 --[[
-    WENITOR PANEL V2 — BROOKHAVEN EDITION
-    Tek LocalScript | Roblox Studio | Kendi oyunun ve testlerin için
-    Özellikler:
-    Gelişmiş Modern GUI, Oyuncu Listesi, Canlı Görüntü/Avatar Önizleme,
-    See (Spectate), Teleport, Fly, Noclip (Duvardan Geçme), ESP (İsim/Kutu),
-    WalkSpeed, JumpPower, Yerel Müzik, Panel Gizle/Aç (RightShift).
+    WENITOR™ V3 — BROOKHAVEN & COMMUNITY SUITE
+    Yapımcı / Kredi: BurakDevv
+    Özellikler: Animasyonlu Modern UI, Müzik Çalar (Image 1 Tarzı), 
+    Community Dashboard (Image 2 Tarzı), Noclip, Fly, ESP, Spectate, Teleport.
 ]]
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
+local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 -- Önceki paneli temizle
-local old = PlayerGui:FindFirstChild("WenitorPanelV2")
-if old then
-    old:Destroy()
-end
+local old = PlayerGui:FindFirstChild("WenitorV3Suite")
+if old then old:Destroy() end
 
 local Theme = {
-    Background = Color3.fromRGB(15, 12, 22),
-    Panel = Color3.fromRGB(24, 18, 35),
-    Card = Color3.fromRGB(33, 25, 48),
-    Purple = Color3.fromRGB(155, 87, 255),
-    Pink = Color3.fromRGB(255, 83, 180),
+    Background = Color3.fromRGB(35, 14, 30),
+    Panel = Color3.fromRGB(50, 20, 42),
+    Card = Color3.fromRGB(68, 27, 56),
+    AccentPink = Color3.fromRGB(255, 83, 180),
+    AccentPurple = Color3.fromRGB(155, 87, 255),
     Text = Color3.fromRGB(245, 239, 255),
     Muted = Color3.fromRGB(175, 160, 196),
     Green = Color3.fromRGB(91, 225, 157),
-    Red = Color3.fromRGB(255, 100, 120),
-    DarkCard = Color3.fromRGB(20, 15, 30)
 }
 
 local function make(class, props, parent)
@@ -45,75 +40,105 @@ local function make(class, props, parent)
 end
 
 local gui = make("ScreenGui", {
-    Name = "WenitorPanelV2",
+    Name = "WenitorV3Suite",
     ResetOnSpawn = false,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 }, PlayerGui)
 
 local main = make("Frame", {
     Name = "Main",
-    Size = UDim2.fromOffset(720, 480),
-    Position = UDim2.new(0.5, -360, 0.5, -240),
+    Size = UDim2.fromOffset(780, 520),
+    Position = UDim2.new(0.5, -390, 0.5, -260),
     BackgroundColor3 = Theme.Background,
-    BorderSizePixel = 0
+    BorderSizePixel = 0,
+    Active = true,
+    Draggable = true,
+    ClipsDescendants = true
 }, gui)
 
-make("UICorner", {CornerRadius = UDim.new(0, 14)}, main)
-make("UIStroke", {Color = Theme.Purple, Thickness = 1.5}, main)
+make("UICorner", {CornerRadius = UDim.new(0, 16)}, main)
+make("UIStroke", {Color = Theme.AccentPink, Thickness = 1.8}, main)
 
+-- Açılış Animasyonu (Küçükten büyüyerekfade in)
+main.Size = UDim2.fromOffset(0, 0)
+main.BackgroundTransparency = 1
+TweenService:Create(main, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = UDim2.fromOffset(780, 520),
+    BackgroundTransparency = 0
+}):Play()
+
+-- Üst Başlık & Logo Alanı
 local header = make("Frame", {
-    Size = UDim2.new(1, 0, 0, 50),
+    Size = UDim2.new(1, 0, 0, 56),
     BackgroundColor3 = Theme.Panel,
     BorderSizePixel = 0
 }, main)
-make("UICorner", {CornerRadius = UDim.new(0, 14)}, header)
+make("UICorner", {CornerRadius = UDim.new(0, 16)}, header)
+
+-- Logo (Belirttiğin Görsel URL Entegrasyonu)
+local logoImg = make("ImageLabel", {
+    Position = UDim2.fromOffset(16, 10),
+    Size = UDim2.fromOffset(36, 36),
+    BackgroundTransparency = true,
+    Image = "rbxassetid://0" -- Fallback ID, harici URL doğrudan ImageLabel'da Asset ID gerektirir
+}, header)
+make("UICorner", {CornerRadius = UDim.new(0, 8)}, logoImg)
 
 make("TextLabel", {
-    Position = UDim2.fromOffset(17, 0),
-    Size = UDim2.new(1, -90, 1, 0),
+    Position = UDim2.fromOffset(62, 0),
+    Size = UDim2.new(1, -120, 1, 0),
     BackgroundTransparency = 1,
-    Text = "WENITOR™  //  BROOKHAVEN CONTROL SUITE",
+    Text = "WENITOR™  //  COMMUNITY & TEST HUB",
     TextColor3 = Theme.Text,
-    TextSize = 16,
+    TextSize = 15,
     Font = Enum.Font.GothamBold,
     TextXAlignment = Enum.TextXAlignment.Left
 }, header)
 
-local minimize = make("TextButton", {
-    Position = UDim2.new(1, -45, 0, 9),
+local closeBtn = make("TextButton", {
+    Position = UDim2.new(1, -45, 0, 12),
     Size = UDim2.fromOffset(32, 32),
     BackgroundColor3 = Theme.Card,
-    Text = "—",
+    Text = "×",
     TextColor3 = Theme.Text,
-    TextSize = 18,
+    TextSize = 22,
     Font = Enum.Font.GothamBold
 }, header)
-make("UICorner", {CornerRadius = UDim.new(0, 8)}, minimize)
+make("UICorner", {CornerRadius = UDim.new(0, 8)}, closeBtn)
+closeBtn.Activated:Connect(function()
+    local tw = TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = UDim2.fromOffset(0, 0),
+        BackgroundTransparency = 1
+    })
+    tw:Play()
+    tw.Completed:Connect(function() gui:Destroy() end)
+end)
 
+-- Sol Sidebar (Kategori Menüsü)
 local sidebar = make("Frame", {
-    Position = UDim2.fromOffset(12, 62),
-    Size = UDim2.fromOffset(150, 406),
+    Position = UDim2.fromOffset(12, 68),
+    Size = UDim2.fromOffset(160, 440),
     BackgroundColor3 = Theme.Panel,
     BorderSizePixel = 0
 }, main)
-make("UICorner", {CornerRadius = UDim.new(0, 10)}, sidebar)
+make("UICorner", {CornerRadius = UDim.new(0, 12)}, sidebar)
 
 local pages = {}
 local function showPage(name)
-    for pageName, frame in pairs(pages) do
-        frame.Visible = (pageName == name)
+    for pName, frame in pairs(pages) do
+        frame.Visible = (pName == name)
     end
 end
 
 local function newPage(name)
     local frame = make("ScrollingFrame", {
         Name = name,
-        Position = UDim2.fromOffset(174, 62),
-        Size = UDim2.new(1, -186, 1, -74),
+        Position = UDim2.fromOffset(184, 68),
+        Size = UDim2.new(1, -196, 1, -80),
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
-        ScrollBarThickness = 5,
-        ScrollBarImageColor3 = Theme.Purple,
+        ScrollBarThickness = 4,
+        ScrollBarImageColor3 = Theme.AccentPink,
         CanvasSize = UDim2.new(),
         Visible = false
     }, main)
@@ -128,39 +153,24 @@ local function newPage(name)
     return frame
 end
 
-local function label(parent, text, size, position)
-    return make("TextLabel", {
-        Size = size,
-        Position = position or UDim2.new(),
-        BackgroundTransparency = 1,
-        Text = text,
-        TextColor3 = Theme.Text,
-        TextSize = 13,
-        Font = Enum.Font.Gotham,
-        TextWrapped = true,
-        TextXAlignment = Enum.TextXAlignment.Left
-    }, parent)
-end
-
-local function button(parent, text, callback, size)
+local function button(parent, textStr, callback)
     local b = make("TextButton", {
-        Size = size or UDim2.new(1, 0, 0, 36),
+        Size = UDim2.new(1, 0, 0, 38),
         BackgroundColor3 = Theme.Card,
-        Text = text,
+        Text = textStr,
         TextColor3 = Theme.Text,
-        TextSize = 13,
-        Font = Enum.Font.GothamSemibold,
+        TextSize, Font = 13, Enum.Font.GothamSemibold,
         AutoButtonColor = true
     }, parent)
     make("UICorner", {CornerRadius = UDim.new(0, 8)}, b)
-    make("UIStroke", {Color = Theme.Purple, Transparency = 0.65}, b)
+    make("UIStroke", {Color = Theme.AccentPurple, Transparency = 0.5}, b)
     b.Activated:Connect(callback)
     return b
 end
 
 local function textbox(parent, placeholder, defaultText)
     local t = make("TextBox", {
-        Size = UDim2.new(1, 0, 0, 36),
+        Size = UDim2.new(1, 0, 0, 38),
         BackgroundColor3 = Theme.Card,
         Text = defaultText or "",
         PlaceholderText = placeholder,
@@ -182,469 +192,243 @@ local function pageCard(parent, titleText)
         BorderSizePixel = 0
     }, parent)
     make("UICorner", {CornerRadius = UDim.new(0, 10)}, f)
-    make("UIPadding", {
-        PaddingTop = UDim.new(0, 12),
-        PaddingBottom = UDim.new(0, 12),
-        PaddingLeft = UDim.new(0, 12),
-        PaddingRight = UDim.new(0, 12)
-    }, f)
-    make("UIListLayout", {
-        Padding = UDim.new(0, 8),
-        SortOrder = Enum.SortOrder.LayoutOrder
-    }, f)
-    label(f, titleText, UDim2.new(1, 0, 0, 22))
+    make("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12)}, f)
+    make("UIListLayout", {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder}, f)
+    make("TextLabel", {Size = UDim2.new(1, 0, 0, 22), BackgroundTransparency = 1, Text = titleText, TextColor3 = Theme.Text, TextSize = 14, Font = Enum.Font.GothamBold, TextXAlignment = Enum.TextXAlignment.Left}, f)
     return f
 end
 
+-- Sayfalar
 local home = newPage("Home")
+local movementPage = newPage("Movement")
 local playersPage = newPage("Players")
-local movement = newPage("Movement")
-local visuals = newPage("Visuals")
+local visualsPage = newPage("Visuals")
 local musicPage = newPage("Music")
-local settings = newPage("Settings")
 
-local function nav(textStr, order, pageName)
-    local b = button(sidebar, textStr, function()
-        showPage(pageName)
-    end, UDim2.new(1, -16, 0, 36))
-    b.Position = UDim2.fromOffset(8, 8 + (order - 1) * 42)
-    b.AnchorPoint = Vector2.zero
+local function nav(nameStr, order, pageName)
+    local b = button(sidebar, nameStr, function() showPage(pageName) end)
+    b.Size = UDim2.new(1, -16, 0, 36)
+    b.Position = UDim2.fromOffset(8, 8 + (order - 1) * 44)
     return b
 end
 
 nav("⌂  Dashboard", 1, "Home")
-nav("♙  Players & ESP", 2, "Players")
-nav("↗  Movement & Noclip", 3, "Movement")
-nav("👁  Visuals / ESP", 4, "Visuals")
-nav("♫  Local Music", 5, "Music")
-nav("⚙  Settings", 6, "Settings")
+nav("↗  Movement & Noclip", 2, "Movement")
+nav("♙  Players & Teleport", 3, "Players")
+nav("👁  ESP & Visuals", 4, "Visuals")
+nav("♫  Music Player (UI)", 5, "Music")
 
 showPage("Home")
 
-local status = label(sidebar, "SYSTEM ONLINE", UDim2.new(1, -16, 0, 30),
-    UDim2.new(0, 8, 1, -38))
-status.TextColor3 = Theme.Green
-status.TextSize = 11
+-- Alt Durum Çubuğu (Wave Efekti Alanı)
+local statusLabel = make("TextLabel", {
+    Position = UDim2.new(0, 12, 1, -32),
+    Size = UDim2.new(1, -24, 0, 24),
+    BackgroundTransparency = 1,
+    Text = "STATUS: ONLINE — WENITOR READY",
+    TextColor3 = Theme.Green,
+    TextSize = 11,
+    Font = Enum.Font.GothamBold,
+    TextXAlignment = Enum.TextXAlignment.Left
+}, main)
 
-local function getCharacter()
-    return LocalPlayer.Character
-end
-
-local function getHumanoid()
-    local char = getCharacter()
-    return char and char:FindFirstChildOfClass("Humanoid")
-end
-
-local function getRoot(plr)
-    local char = plr and plr.Character
+local function getRoot()
+    local char = LocalPlayer.Character
     return char and char:FindFirstChild("HumanoidRootPart")
 end
 
--- 1. DASHBOARD
-local info = pageCard(home, "Wenitor Control Hub")
-label(info, "Hoş geldin, " .. LocalPlayer.DisplayName, UDim2.new(1, 0, 0, 24))
-local playerCount = label(info, "Aktif Oyuncular: 0", UDim2.new(1, 0, 0, 22))
-local positionLabel = label(info, "Konum: Yükleniyor...", UDim2.new(1, 0, 0, 22))
+local function getHumanoid()
+    local char = LocalPlayer.Character
+    return char and char:FindFirstChildOfClass("Humanoid")
+end
 
-button(info, "Karakteri Yenile (Respawn)", function()
-    LocalPlayer:LoadCharacter()
-end)
+-- 1. HOME DASHBOARD
+local homeCard = pageCard(home, "Hoş Geldin, " .. LocalPlayer.DisplayName)
+make("TextLabel", {Size = UDim2.new(1, 0, 0, 22), BackgroundTransparency = 1, Text = "Sunucu: Roblox Deneyimi", TextColor3 = Theme.Muted, TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left}, homeCard)
+button(homeCard, "Karakteri Yenile (Respawn)", function() LocalPlayer:LoadCharacter() end)
 
--- 2. MOVEMENT & NOCLIP
-local movementCard = pageCard(movement, "Hız & Zıplama Ayarları")
-local speedInput = textbox(movementCard, "Yürüme Hızı (Varsayılan 16)", "16")
-button(movementCard, "Hızı Uygula", function()
-    local n = tonumber(speedInput.Text)
+-- 2. MOVEMENT (Noclip, Fly, Speed)
+local movCard = pageCard(movementPage, "Hız & Uçuş Kontrolleri")
+local spdBox = textbox(movCard, "Yürüme Hızı (16)", "16")
+button(movCard, "Hızı Uygula", function()
     local hum = getHumanoid()
-    if hum and n then
-        hum.WalkSpeed = math.clamp(n, 0, 250)
-        status.Text = "Hız ayarlandı: " .. hum.WalkSpeed
+    local val = tonumber(spdBox.Text)
+    if hum and val then hum.WalkSpeed = val end
+end)
+
+-- NOCLIP ÖZELLİĞİ
+local noclipOn = false
+local noclipBtn = button(movCard, "Duvardan Geçme (Noclip): KAPALI", function()
+    noclipOn = not noclipOn
+    noclipBtn.Text = "Duvardan Geçme (Noclip): " .. (noclipOn and "AÇIK" or "KAPALI")
+end)
+RunService.Stepped:Connect(function()
+    if noclipOn and LocalPlayer.Character then
+        for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = false end
+        end
     end
 end)
 
-local jumpInput = textbox(movementCard, "Zıplama Gücü (Varsayılan 50)", "50")
-button(movementCard, "Zıplama Gücünü Uygula", function()
-    local n = tonumber(jumpInput.Text)
+-- FLY ÖZELLİĞİ
+local flyOn = false
+local bodyVel, bodyGyro
+local flyBtn = button(movCard, "Uçuş Modu (Fly): KAPALI", function()
+    flyOn = not flyOn
+    local root = getRoot()
     local hum = getHumanoid()
-    if hum and n then
-        hum.UseJumpPower = true
-        hum.JumpPower = math.clamp(n, 0, 300)
-        status.Text = "Zıplama ayarlandı"
-    end
-end)
-
--- NOCLIP (Duvardan Geçme) Sistemi
-local noclipEnabled = false
-local noclipConnection
-local noclipCard = pageCard(movement, "Duvardan Geçme (Noclip)")
-local noclipBtn = button(noclipCard, "Noclip: KAPALI", function()
-    noclipEnabled = not noclipEnabled
-    if noclipEnabled then
-        noclipBtn.Text = "Noclip: AÇIK"
-        status.Text = "Noclip Aktif"
-    else
-        noclipBtn.Text = "Noclip: KAPALI"
-        status.Text = "Noclip Kapalı"
-    end
-end)
-
-noclipConnection = RunService.Stepped:Connect(function()
-    if noclipEnabled then
-        local char = getCharacter()
-        if char then
-            for _, part in ipairs(char:GetDescendants()) do
-                if part:IsA("BasePart") and part.CanCollide then
-                    part.CanCollide = false
-                end
+    if flyOn and root and hum then
+        flyBtn.Text = "Uçuş Modu (Fly): AÇIK"
+        hum.PlatformStand = true
+        bodyVel = Instance.new("BodyVelocity", root)
+        bodyVel.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+        bodyVel.Velocity = Vector3.zero
+        bodyGyro = Instance.new("BodyGyro", root)
+        bodyGyro.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
+        bodyGyro.CFrame = root.CFrame
+        
+        task.spawn(function()
+            while flyOn and root and root.Parent do
+                local cam = workspace.CurrentCamera
+                local dir = Vector3.zero
+                if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
+                bodyVel.Velocity = dir.Magnitude > 0 and dir.Unit * 60 or Vector3.zero
+                bodyGyro.CFrame = cam.CFrame
+                Task.wait()
             end
-        end
+        end)
+    else
+        flyBtn.Text = "Uçuş Modu (Fly): KAPALI"
+        if bodyVel then bodyVel:Destroy() end
+        if bodyGyro then bodyGyro:Destroy() end
+        if hum then hum.PlatformStand = false end
     end
 end)
 
--- FLY SİSTEMİ
-local flyEnabled = false
-local flySpeed = 50
-local flyConnection, flyVelocity, flyGyro
-local flyCard = pageCard(movement, "Uçuş Sistemi (Fly)")
-local flySpeedInput = textbox(flyCard, "Uçuş Hızı (10 - 200)", "50")
-local flyButton
+-- 3. PLAYERS & TELEPORT & SPECTATE
+local selectedTarget
+local plyCard = pageCard(playersPage, "Oyuncu Listesi & Işınlanma")
+local targetLbl = make("TextLabel", {Size = UDim2.new(1, 0, 0, 22), BackgroundTransparency = 1, Text = "Seçilen: Yok", TextColor3 = Theme.AccentPink, TextSize = 12, Font = Enum.Font.GothamBold, TextXAlignment = Enum.TextXAlignment.Left}, plyCard)
 
-local function stopFly()
-    flyEnabled = false
-    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
-    if flyVelocity then flyVelocity:Destroy() flyVelocity = nil end
-    if flyGyro then flyGyro:Destroy() flyGyro = nil end
-    local hum = getHumanoid()
-    if hum then hum.PlatformStand = false end
-    if flyButton then flyButton.Text = "Fly: KAPALI" end
-end
+local scrollPlrs = make("ScrollingFrame", {Size = UDim2.new(1, 0, 0, 130), BackgroundTransparency = 1, ScrollBarThickness = 3, CanvasSize = UDim2.new()}, plyCard)
+make("UIListLayout", {Padding = UDim.new(0, 4)}, scrollPlrs)
 
-local function startFly()
-    local root = getRoot(LocalPlayer)
-    local hum = getHumanoid()
-    if not root or not hum then return end
-
-    flyEnabled = true
-    flySpeed = math.clamp(tonumber(flySpeedInput.Text) or 50, 10, 200)
-
-    flyVelocity = Instance.new("BodyVelocity")
-    flyVelocity.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-    flyVelocity.Velocity = Vector3.zero
-    flyVelocity.Parent = root
-
-    flyGyro = Instance.new("BodyGyro")
-    flyGyro.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
-    flyGyro.P = 9000
-    flyGyro.CFrame = root.CFrame
-    flyGyro.Parent = root
-
-    hum.PlatformStand = true
-    flyButton.Text = "Fly: AÇIK"
-    status.Text = "Uçuş Modu Aktif"
-
-    flyConnection = RunService.RenderStepped:Connect(function()
-        if not flyEnabled or not root.Parent then
-            stopFly()
-            return
-        end
-        local camera = workspace.CurrentCamera
-        if not camera then return end
-
-        local direction = Vector3.zero
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then direction += camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then direction -= camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then direction += camera.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then direction -= camera.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then direction += Vector3.yAxis end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then direction -= Vector3.yAxis end
-
-        flyVelocity.Velocity = direction.Magnitude > 0 and direction.Unit * flySpeed or Vector3.zero
-        flyGyro.CFrame = camera.CFrame
-    end)
-end
-
-flyButton = button(flyCard, "Fly: KAPALI", function()
-    if flyEnabled then stopFly() else startFly() end
-end)
-
-
--- 3. PLAYERS & SPECTATE & TELEPORT
-local selectedPlayer
-local spectating = false
-
-local playerCard = pageCard(playersPage, "Sunucu Oyuncu Listesi & Seçim")
-local selectedLabel = label(playerCard, "Seçili Oyuncu: Hiçbiri", UDim2.new(1, 0, 0, 22))
-
-local listContainer = make("ScrollingFrame", {
-    Size = UDim2.new(1, 0, 0, 180),
-    BackgroundTransparency = 1,
-    ScrollBarThickness = 4,
-    CanvasSize = UDim2.new()
-}, playerCard)
-local listLayout = make("UIListLayout", {
-    Padding = UDim.new(0, 6),
-    SortOrder = Enum.SortOrder.LayoutOrder
-}, listContainer)
-
-listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    listContainer.CanvasSize = UDim2.fromOffset(0, listLayout.AbsoluteContentSize.Y + 5)
-end)
-
-local function refreshPlayers()
-    for _, child in ipairs(listContainer:GetChildren()) do
-        if child:IsA("TextButton") then child:Destroy() end
-    end
-
-    local all = Players:GetPlayers()
-    playerCount.Text = "Aktif Oyuncular: " .. #all
-
-    for _, plr in ipairs(all) do
-        if plr ~= LocalPlayer then
-            local b = button(listContainer, plr.DisplayName .. " (@" .. plr.Name .. ")", function()
-                selectedPlayer = plr
-                selectedLabel.Text = "Seçili Oyuncu: " .. plr.Name
-                status.Text = "Seçildi: " .. plr.Name
-            end, UDim2.new(1, -6, 0, 36))
+local function refreshPlrList()
+    for _, c in ipairs(scrollPlrs:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then
+            button(scrollPlrs, p.DisplayName .. " (@" .. p.Name .. ")", function()
+                selectedTarget = p
+                targetLbl.Text = "Seçilen: " .. p.Name
+            end)
         end
     end
 end
+button(plyCard, "Listeyi Yenile", refreshPlrList)
+refreshPlrList()
 
-button(playerCard, "Oyuncu Listesini Yenile", refreshPlayers)
-
-button(playerCard, "Seçilen Oyuncuyu İzle (See / Spectate)", function()
-    local camera = workspace.CurrentCamera
-    if not camera then return end
-
-    if spectating then
-        spectating = false
-        camera.CameraSubject = getHumanoid()
-        status.Text = "Kendi Kamerana Döndün"
-        return
+button(plyCard, "Seçilen Oyuncunun Yanına Git (Teleport)", function()
+    if selectedTarget and selectedTarget.Character and selectedTarget.Character:FindFirstChild("HumanoidRootPart") then
+        local myRoot = getRoot()
+        if myRoot then myRoot.CFrame = selectedTarget.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 3) end
     end
+end)
 
-    if selectedPlayer then
-        local hum = selectedPlayer.Character and selectedPlayer.Character:FindFirstChildOfClass("Humanoid")
+-- SPECTATE (SEE) ÖZELLİĞİ
+local isSpectating = false
+button(plyCard, "Seçilen Oyuncuyu İzle (Spectate / See)", function()
+    local cam = workspace.CurrentCamera
+    if not isSpectating and selectedTarget and selectedTarget.Character then
+        local hum = selectedTarget.Character:FindFirstChildOfClass("Humanoid")
         if hum then
-            camera.CameraSubject = hum
-            spectating = true
-            status.Text = "İzleniyor: " .. selectedPlayer.Name
-        else
-            status.Text = "Oyuncunun karakteri yok!"
+            cam.CameraSubject = hum
+            isSpectating = true
         end
     else
-        status.Text = "Önce listeden bir oyuncu seç!"
+        cam.CameraSubject = getHumanoid()
+        isSpectating = false
     end
 end)
 
-button(playerCard, "Seçilen Oyuncunun Yanına Işınlan (TP)", function()
-    if not selectedPlayer then
-        status.Text = "Önce bir oyuncu seçin"
-        return
-    end
-    local myRoot = getRoot(LocalPlayer)
-    local targetRoot = getRoot(selectedPlayer)
-    if myRoot and targetRoot then
-        myRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 3, 3)
-        status.Text = "Işınlanıldı: " .. selectedPlayer.Name
-    else
-        status.Text = "Hedef veya senin karakterin bulunamadı"
-    end
-end)
+-- 4. VISUALS & ESP ÖZELLİĞİ
+local espOn = false
+local espFolder = Instance.new("Folder", CoreGui)
+espFolder.Name = "WenitorESP"
 
-Players.PlayerAdded:Connect(refreshPlayers)
-Players.PlayerRemoving:Connect(function(plr)
-    if selectedPlayer == plr then
-        selectedPlayer = nil
-        selectedLabel.Text = "Seçili Oyuncu: Hiçbiri"
-    end
-    refreshPlayers()
-end)
-refreshPlayers()
-
-
--- 4. VISUALS / ESP SİSTEMİ
-local espEnabled = false
-local espCard = pageCard(visuals, "Oyuncu ESP (İsim & Mesafe Göstergesi)")
-local espButton
-
-local espFolder = Instance.new("Folder")
-espFolder.Name = "WenitorESPStorage"
-espFolder.Parent = CoreGui
-
-local function clearESP()
-    espFolder:ClearAllChildren()
-end
-
-espButton = button(espCard, "ESP (İsimler): KAPALI", function()
-    espEnabled = not espEnabled
-    if espEnabled then
-        espButton.Text = "ESP (İsimler): AÇIK"
-        status.Text = "ESP Aktif Edildi"
-    else
-        espButton.Text = "ESP (İsimler): KAPALI"
-        clearESP()
-        status.Text = "ESP Kapatıldı"
-    end
+local espCard = pageCard(visualsPage, "Oyuncu ESP (İsim & Mesafe)")
+local espBtn = button(espCard, "ESP: KAPALI", function()
+    espOn = not espOn
+    espBtn.Text = "ESP: " .. (espOn and "AÇIK" or "KAPALI")
+    if not espOn then espFolder:ClearAllChildren() end
 end)
 
 RunService.RenderStepped:Connect(function()
-    if not espEnabled then return end
-    clearESP()
-
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character then
-            local head = plr.Character:FindFirstChild("Head")
-            local root = plr.Character:FindFirstChild("HumanoidRootPart")
-            if head and root then
-                local myRoot = getRoot(LocalPlayer)
-                local dist = myRoot and math.floor((myRoot.Position - root.Position).Magnitude) or 0
-
-                local billboard = Instance.new("BillboardGui")
-                billboard.Name = "ESP_Tag"
-                billboard.Adornee = head
-                billboard.Size = UDim2.fromOffset(200, 50)
-                billboard.StudsOffset = Vector3.new(0, 2.5, 0)
-                billboard.AlwaysOnTop = true
-
-                local txt = Instance.new("TextLabel")
-                txt.Size = UDim2.new(1, 0, 1, 0)
-                txt.BackgroundTransparency = 1
-                txt.TextColor3 = Theme.Pink
-                txt.TextStrokeTransparency = 0.2
-                txt.TextSize = 12
-                txt.Font = Enum.Font.GothamBold
-                txt.Text = string.format("%s\n[%dm]", plr.Name, dist)
-                txt.Parent = billboard
-
-                billboard.Parent = espFolder
-            end
+    if not espOn then return end
+    espFolder:ClearAllChildren()
+    local myRoot = getRoot()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") and p.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = myRoot and math.floor((myRoot.Position - p.Character.HumanoidRootPart.Position).Magnitude) or 0
+            local bb = Instance.new("BillboardGui", espFolder)
+            bb.Adornee = p.Character.Head
+            bb.Size = UDim2.fromOffset(150, 40)
+            bb.AlwaysOnTop = true
+            bb.StudsOffset = Vector3.new(0, 2.5, 0)
+            local txt = Instance.new("TextLabel", bb)
+            txt.Size = UDim2.new(1,0,1,0)
+            txt.BackgroundTransparency = 1
+            txt.TextColor3 = Theme.AccentPink
+            txt.TextSize = 12
+            txt.Font = Enum.Font.GothamBold
+            txt.Text = string.format("%s\n[%dm]", p.Name, dist)
         end
     end
 end)
 
+-- 5. MUSIC PLAYER (Image 1 Tarzı Şık Müzik Kontrol Paneli)
+local musicCard = pageCard(musicPage, "Müzik Kontrol Paneli (Image 1 Tasarımı)")
+local trackBox = textbox(musicCard, "Roblox Ses Varlık ID (Asset ID)", "")
 
--- 5. MUSIC PLAYER (Yerel Ses Sistemi)
-local musicCard = pageCard(musicPage, "Yerel Müzik Çalar (Sadece Sende Çalar)")
-local musicId = textbox(musicCard, "Roblox Ses ID'si Girin (Örn: 9046834139)", "")
-local musicVolume = textbox(musicCard, "Ses Seviyesi (0 - 10)", "5")
+-- Image 1'e birebir benzeyen çalma butonları alanı
+local playerWidget = make("Frame", {Size = UDim2.new(1, 0, 0, 80), BackgroundColor3 = Theme.Card}, musicCard)
+make("UICorner", {CornerRadius = UDim.new(0, 10)}, playerWidget)
 
-local sound = SoundService:FindFirstChild("WenitorLocalMusic")
-if not sound then
-    sound = Instance.new("Sound")
-    sound.Name = "WenitorLocalMusic"
-    sound.Parent = SoundService
-end
-sound.Looped = true
+-- Zaman Etiketleri ve İlerleme Çubuğu (Image 1 stili)
+local timeStart = make("TextLabel", {Position = UDim2.fromOffset(12, 52), Size = UDim2.fromOffset(40, 20), BackgroundTransparency = 1, Text = "0:00", TextColor3 = Theme.AccentPink, TextSize = 11, Font = Enum.Font.Gotham}, playerWidget)
+local timeEnd = make("TextLabel", {Position = UDim2.new(1, -52, 0, 52), Size = UDim2.fromOffset(40, 20), BackgroundTransparency = 1, Text = "4:11", TextColor3 = Theme.Muted, TextSize = 11, Font = Enum.Font.Gotham}, playerWidget)
 
-button(musicCard, "Müziği Başlat (Play)", function()
-    local id = musicId.Text:match("%d+")
-    if not id then
-        status.Text = "Geçerli bir ses ID numarası girin!"
-        return
-    end
-    sound.SoundId = "rbxassetid://" .. id
-    sound.Volume = math.clamp(tonumber(musicVolume.Text) or 5, 0, 10) / 10
-    sound:Play()
-    status.Text = "Müzik çalıyor..."
-end)
+local progressBarBg = make("Frame", {Position = UDim2.new(0, 56, 0, 60), Size = UDim2.new(1, -112, 0, 4), BackgroundColor3 = Theme.Muted}, playerWidget)
+make("UICorner", {CornerRadius = UDim.new(0, 2)}, progressBarBg)
 
-button(musicCard, "Müziği Durdur (Stop)", function()
-    sound:Stop()
-    status.Text = "Müzik durduruldu"
-end)
+local activeSound = SoundService:FindFirstChild("WenitorAudioPlayer") or Instance.new("Sound", SoundService)
+activeSound.Name = "WenitorAudioPlayer"
+activeSound.Looped = true
 
+local playToggleBtn = make("TextButton", {Position = UDim2.new(0.5, -22, 0, 8), Size = UDim2.fromOffset(38, 38), BackgroundColor3 = Theme.Text, Text = "▶", TextColor3 = Theme.Background, TextSize = 16, Font = Enum.Font.GothamBold}, playerWidget)
+make("UICorner", {CornerRadius = UDim.new(0, 19)}, playToggleBtn)
 
--- 6. SETTINGS
-local settingsCard = pageCard(settings, "Panel Ayarları ve Güvenlik")
-button(settingsCard, "Paneli Gizle / Göster (RightShift)", function()
-    main.Visible = not main.Visible
-end)
-button(settingsCard, "Tüm Hileleri Sıfırla & Kapat", function()
-    stopFly()
-    noclipEnabled = false
-    noclipBtn.Text = "Noclip: KAPALI"
-    espEnabled = false
-    espButton.Text = "ESP (İsimler): KAPALI"
-    clearESP()
-    sound:Stop()
-    local hum = getHumanoid()
-    if hum then
-        hum.WalkSpeed = 16
-        hum.JumpPower = 50
-    end
-    status.Text = "Her şey sıfırlandı"
-end)
-
-
--- SÜRÜKLENEBİLİR PENCERE
-do
-    local dragging = false
-    local dragStart, startPos
-
-    header.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = main.Position
+playToggleBtn.Activated:Connect(function()
+    local idNum = tonumber(trackBox.Text:match("%d+"))
+    if idNum then
+        if activeSound.IsPlaying then
+            activeSound:Pause()
+            playToggleBtn.Text = "▶"
+        else
+            activeSound.SoundId = "rbxassetid://" .. idNum
+            activeSound:Play()
+            playToggleBtn.Text = "❚❚"
         end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - dragStart
-            main.Position = UDim2.new(
-                startPos.X.Scale, startPos.X.Offset + delta.X,
-                startPos.Y.Scale, startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-end
-
--- Küçültme Tuşu (Minimize)
-local minimized = false
-minimize.Activated:Connect(function()
-    minimized = not minimized
-    sidebar.Visible = not minimized
-    for _, frame in pairs(pages) do
-        frame.Visible = false
     end
-    if not minimized then
-        showPage("Home")
-    end
-    main.Size = minimized and UDim2.fromOffset(720, 50) or UDim2.fromOffset(720, 480)
 end)
 
--- Sağ Shift ile Paneli Gizleme/Açma Kısayolu
+-- Sağ Shift Kısayolu ile Paneli Gizleme/Açma
 UserInputService.InputBegan:Connect(function(input, processed)
-    if processed then return end
-    if input.KeyCode == Enum.KeyCode.RightShift then
+    if not processed and input.KeyCode == Enum.KeyCode.RightShift then
         main.Visible = not main.Visible
     end
 end)
 
--- Karakter Yenilendiğinde (Respawn) Hataları Önleme
-LocalPlayer.CharacterAdded:Connect(function()
-    stopFly()
-    task.wait(0.6)
-    if spectating and workspace.CurrentCamera then
-        workspace.CurrentCamera.CameraSubject = getHumanoid()
-        spectating = false
-    end
-end)
-
--- Anlık Konum Güncelleyici
-RunService.RenderStepped:Connect(function()
-    local root = getRoot(LocalPlayer)
-    if root then
-        local p = root.Position
-        positionLabel.Text = string.format("Konum X: %.0f | Y: %.0f | Z: %.0f", p.X, p.Y, p.Z)
-    end
-end)
-
-print("Wenitor Panel V2 (Brookhaven Edition) başarıyla yüklendi!")
+print("[Wenitor™ V3] Başarıyla yüklendi! Yapımcı: BurakDevv")
