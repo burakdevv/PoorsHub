@@ -18,9 +18,12 @@
 
 ---
 
-## 🔥 Neden PoorsHub?
+## ⚡ Hızlı Erişim & Loadstrings
+Tüm oyunlar için hazır executor yükleme kodlarına ve loadstring bağlantılarına ulaşmak için lütfen **[Scripts/rawsLoadStrings.md](./Scripts/rawsLoadStrings.md)** dosyasını ziyaret edin!
 
-PoorsHub, klasik script hub'larından farklı olarak tamamen kullanıcı odaklı, akıcı ve optimize edilmiş bir deneyim sunar. 
+---
+
+## 🔥 Neden PoorsHub?
 
 * 🎨 **Modern & Şık Tema:** Göz yormayan koyu mor/neon renk paleti ve yuvarlatılmış hatlara sahip özel UI tasarımı.
 * 🔍 **Anlık Arama Motoru:** İstediğin hileyi veya özelliği saniyeler içinde bulmanı sağlayan dinamik arama çubuğu.
@@ -31,25 +34,16 @@ PoorsHub, klasik script hub'larından farklı olarak tamamen kullanıcı odaklı
 
 ## 🎮 Desteklenen Oyunlar & Modüller
 
-PoorsHub deposu içerisinde şu an aktif olarak desteklenen oyun listesi:
-
-| Oyun Adı | Desteklenen Modüller & Özellikler |
-| :--- | :--- |
-| **🌲 Ormanda 99 Gece** | Fullbright, Forest Fly, Noclip, ESP, Hızlı Koşma |
-| **🏠 Brookhaven RP** | Ev/Karakter Kontrolleri, Hız, Görünmezlik, Uçuş |
-| **🔪 Murder Mystery 2** | Rol ESP (Katil/Şerif Tespiti), Silah Yakalama, Fly |
-| **🌪️ Doğal Afetler** | Kuleye Işınlanma, Güvenli Bölge TP, Fly, Noclip |
-| **🧗‍♂️ Obbys & Parkur** | Checkpoint Kaydet/Yükle, Bhop, Auto Jump, Noclip |
-| **👮‍♂️ Prison Life** | Takım Değiştirme, Silah Alma, Godmode, Hız |
-| **🧠 Steal a Brainrot** | Ultra Fly Speed, Super WalkSpeed, Click TP, ESP |
-| **⚔️ Strongest Battlegrounds** | Düşman ESP, Inf Jump, Combat Hızları, Uçuş |
-| **🗼 Tower of Hell** | God Jump, Tepeye Işınlanma, Lazer Noclip, Fly |
-
----
-
-## ⚡ Hızlı Başlangıç & Kullanım
-
-Herhangi bir scripti doğrudan executor programınıza (Delta, Xeno, Fluxus vb.) yapıştırarak çalıştırmak için **[rawsLoadStrings.md](Scripts/rawsLoadStrings.md)** dosyasını ziyaret edin ve dilediğiniz oyunun loadstring kodunu kopyalayın!
+PoorsHub deposu içerisinde desteklenen oyun listesi:
+* 🌲 **Ormanda 99 Gece** (99 Nights in the Forest)
+* 🏠 **Brookhaven RP**
+* 🔪 **Murder Mystery 2** (MM2)
+* 🌪️ **Doğal Afette Hayatta Kal** (Natural Disaster Survival)
+* 🧗‍♂️ **Obbys & Parkur Modu**
+* 👮‍♂️ **Prison Life**
+* 🧠 **Steal a Brainrot** (Ultra Edition)
+* ⚔️ **En Güçlü Savaş Alanları** (The Strongest Battlegrounds)
+* 🗼 **Tower of Hell** (TOH)
 
 ---
 <p align="center"><i>Developed with ❤️ by burakdevv | PoorsHub 2026</i></p>
