@@ -1,7 +1,7 @@
 --[[
     ========================================================
-    PoorsHub Real v2.0 - Ultimate Working Edition
-    Features: All-in-One Search Bar + @Chat Commands + Full Functional Logic
+    PoorsHub Real v3.0 - Ultimate Edition (Bang Modu Dahil)
+    Features: Delta Bang Modu + Search Bar + @Chat Commands
     Target: Delta / Xeno / Synapse X / Fluxus
     ========================================================
 ]]--
@@ -17,26 +17,29 @@ local CoreGui = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Aktif Durum Hafızası
+-- State Deposu
 local States = {
     Noclip = false,
     InfJump = false,
     Fly = false,
     FlySpeed = 60,
-    SpinBot = false
+    SpinBot = false,
+    BangLoop = nil,
+    BangTarget = nil,
+    BangAnim = nil
 }
 
--- ScreenGui Kapsayıcısı
+-- ScreenGui
 local PoorsHubGui = Instance.new("ScreenGui")
-PoorsHubGui.Name = "PoorsHub_Real_v2"
+PoorsHubGui.Name = "PoorsHub_Real_v3"
 PoorsHubGui.Parent = (syn and CoreGui) or (gethui and gethui()) or CoreGui
 PoorsHubGui.ResetOnSpawn = false
 
--- Ana Çerçeve (Win11 / Delta Mor-Koyu Tasarım)
+-- Ana Çerçeve
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 700, 0, 460)
-MainFrame.Position = UDim2.new(0.5, -350, 0.5, -230)
+MainFrame.Size = UDim2.new(0, 720, 0, 470)
+MainFrame.Position = UDim2.new(0.5, -360, 0.5, -235)
 MainFrame.BackgroundColor3 = Color3.fromRGB(18, 12, 28)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -48,18 +51,18 @@ local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(139, 92, 246)
 MainStroke.Thickness = 2
 
--- TopBar (Üst Bar)
+-- TopBar
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 40)
 TopBar.BackgroundColor3 = Color3.fromRGB(28, 18, 44)
 Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 10)
 
 local Title = Instance.new("TextLabel", TopBar)
-Title.Size = UDim2.new(0, 350, 1, 0)
+Title.Size = UDim2.new(0, 380, 1, 0)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
-Title.Text = "PoorsHub Real v2.0 | Search & Chat Commands"
+Title.Text = "PoorsHub Real v3.0 | Delta Bang & Commands"
 Title.TextColor3 = Color3.fromRGB(235, 225, 255)
 Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -75,7 +78,7 @@ CloseBtn.TextSize = 12
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
 CloseBtn.MouseButton1Click:Connect(function() PoorsHubGui:Destroy() end)
 
--- Sidebar & İçerik Alanı
+-- Sidebar & İçerik
 local Sidebar = Instance.new("ScrollingFrame", MainFrame)
 Sidebar.Size = UDim2.new(0, 150, 1, -45)
 Sidebar.Position = UDim2.new(0, 5, 0, 42)
@@ -116,19 +119,61 @@ local function CreateTab(name)
     return tabContent
 end
 
--- SEKMELER
 local tAll = CreateTab("🔍 TÜMÜ & ARAMA")
 local tPlayers = CreateTab("👥 OYUNCULAR")
 local tExec = CreateTab("💻 EXECUTOR")
 
 -- =========================================================
--- 🔍 1. TÜMÜ VE ARAMA SİSTEMİ (SEARCH BAR)
+-- 🔥 BANG MANTIĞI (DELTA BANG SYSTEM)
+-- =========================================================
+local function StopBang()
+    if States.BangLoop then
+        States.BangLoop:Disconnect()
+        States.BangLoop = nil
+    end
+    if States.BangAnim then
+        States.BangAnim:Stop()
+        States.BangAnim = nil
+    end
+    States.BangTarget = nil
+end
+
+local function StartBang(targetPlayer)
+    StopBang()
+    if not targetPlayer or not targetPlayer.Character then return end
+    States.BangTarget = targetPlayer
+
+    local char = LocalPlayer.Character
+    if not char or not char:FindFirstChildOfClass("Humanoid") then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+
+    -- Bang Animasyonu Oynat
+    local anim = Instance.new("Animation")
+    anim.AnimationId = "rbxassetid://148840371" -- Standart Bang Animasyonu
+    pcall(function()
+        States.BangAnim = hum:LoadAnimation(anim)
+        States.BangAnim:Play(0.1, 1, 3)
+    end)
+
+    -- Hedefin Arkasında Kalma Döngüsü
+    States.BangLoop = RunService.RenderStepped:Connect(function()
+        if States.BangTarget and States.BangTarget.Character and States.BangTarget.Character:FindFirstChild("HumanoidRootPart") and char and char:FindFirstChild("HumanoidRootPart") then
+            local targetHRP = States.BangTarget.Character.HumanoidRootPart
+            char.HumanoidRootPart.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 1.1)
+        else
+            StopBang()
+        end
+    end)
+end
+
+-- =========================================================
+-- 🔍 ARAMA SİSTEMİ
 -- =========================================================
 local SearchBox = Instance.new("TextBox", tAll)
 SearchBox.Size = UDim2.new(1, -10, 0, 32)
 SearchBox.Position = UDim2.new(0, 0, 0, 0)
 SearchBox.BackgroundColor3 = Color3.fromRGB(28, 18, 46)
-SearchBox.PlaceholderText = "🔎 Özellik ara... (Örn: Fly, Speed, Spawn, ESP)..."
+SearchBox.PlaceholderText = "🔎 Özellik ara (Bang, Fly, Speed, ESP, Safe)..."
 SearchBox.Text = ""
 SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 SearchBox.Font = Enum.Font.Gotham
@@ -141,13 +186,9 @@ ActionScroll.Position = UDim2.new(0, 0, 0, 38)
 ActionScroll.BackgroundTransparency = 1
 ActionScroll.CanvasSize = UDim2.new(0, 0, 0, 1000)
 ActionScroll.ScrollBarThickness = 4
-
-local ActionList = Instance.new("UIListLayout", ActionScroll)
-ActionList.SortOrder = Enum.SortOrder.LayoutOrder
-ActionList.Padding = UDim.new(0, 5)
+Instance.new("UIListLayout", ActionScroll).Padding = UDim.new(0, 5)
 
 local allButtons = {}
-
 local function AddActionButton(name, callback)
     local btn = Instance.new("TextButton", ActionScroll)
     btn.Size = UDim2.new(1, 0, 0, 30)
@@ -162,40 +203,34 @@ local function AddActionButton(name, callback)
     table.insert(allButtons, {Frame = btn, Text = name:lower()})
 end
 
--- Dynamic Search Logic
 SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
     local query = SearchBox.Text:lower()
     for _, item in pairs(allButtons) do
-        if query == "" or string.find(item.Text, query) then
-            item.Frame.Visible = true
-        else
-            item.Frame.Visible = false
+        item.Frame.Visible = (query == "" or string.find(item.Text, query))
+    end
+end)
+
+-- ÖZELLİK LİSTESİ
+AddActionButton("1. Bang Durdur (Unbang)", StopBang)
+
+AddActionButton("2. Rastgele Birine Bang Yap", function()
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character then
+            StartBang(p)
+            break
         end
     end
 end)
 
--- TÜM GERÇEK ÇALIŞAN ÖZELLİKLERİ LİSTEYE EKLEME
-AddActionButton("1. Spawn Meydanına Işınlan (Spawn TP)", function()
+AddActionButton("3. Spawn Meydanına Işınlan", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 15, 0)
     end
 end)
 
-AddActionButton("2. Banka Kasasına Işınlan (Bank Safe TP)", function()
+AddActionButton("4. Banka Kasasına Işınlan", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-20, 10, -165)
-    end
-end)
-
-AddActionButton("3. Gizli Ajans Odasına Işınlan", function()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-70, 5, -160)
-    end
-end)
-
-AddActionButton("4. Hastaneye Işınlan", function()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-180, 12, -40)
     end
 end)
 
@@ -224,7 +259,7 @@ AddActionButton("7. Zıplama Gücü (JumpPower 120)", function()
     end
 end)
 
-AddActionButton("8. Noclip (Duvarlardan Geçme Aç/Kapat)", function()
+AddActionButton("8. Noclip (Duvarlardan Geçme)", function()
     States.Noclip = not States.Noclip
     RunService.Stepped:Connect(function()
         if States.Noclip and LocalPlayer.Character then
@@ -235,16 +270,7 @@ AddActionButton("8. Noclip (Duvarlardan Geçme Aç/Kapat)", function()
     end)
 end)
 
-AddActionButton("9. Sonsuz Zıplama (Infinite Jump)", function()
-    States.InfJump = true
-    UserInputService.JumpRequest:Connect(function()
-        if States.InfJump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-            LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end)
-end)
-
-AddActionButton("10. Fly (Uçma Modu - F Tuşu)", function()
+AddActionButton("9. Fly (Uçma Modu - F Tuşu)", function()
     States.Fly = not States.Fly
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
@@ -269,19 +295,7 @@ AddActionButton("10. Fly (Uçma Modu - F Tuşu)", function()
     end
 end)
 
-AddActionButton("11. Spin Bot (Çılgınca Dönme)", function()
-    States.SpinBot = not States.SpinBot
-    spawn(function()
-        while States.SpinBot do
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(40), 0)
-            end
-            task.wait(0.03)
-        end
-    end)
-end)
-
-AddActionButton("12. Oyuncu Kutuları (Highlight ESP)", function()
+AddActionButton("10. Oyuncu Kutuları (Highlight ESP)", function()
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character then
             local hl = Instance.new("Highlight", p.Character)
@@ -291,7 +305,7 @@ AddActionButton("12. Oyuncu Kutuları (Highlight ESP)", function()
     end
 end)
 
-AddActionButton("13. Ev Kasalarını Göster (Safe ESP)", function()
+AddActionButton("11. Ev Kasalarını Göster (Safe ESP)", function()
     for _, v in pairs(workspace:GetDescendants()) do
         if v.Name == "Safe" then
             local hl = Instance.new("Highlight", v)
@@ -300,22 +314,8 @@ AddActionButton("13. Ev Kasalarını Göster (Safe ESP)", function()
     end
 end)
 
-AddActionButton("14. Gece Görüşü (Fullbright)", function()
-    Lighting.Brightness = 2
-    Lighting.ClockTime = 14
-    Lighting.FogEnd = 100000
-    Lighting.GlobalShadows = false
-end)
-
-AddActionButton("15. Guest 666 Efekti Patlat", function()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local exp = Instance.new("Explosion", workspace)
-        exp.Position = LocalPlayer.Character.HumanoidRootPart.Position
-    end
-end)
-
 -- =========================================================
--- 👥 2. OYUNCULAR SEKMESİ (AVATAR, TP, SEE, COPY)
+-- 👥 OYUNCULAR PANELDİ (BANG BUTONU DAHİL)
 -- =========================================================
 local PlayerScroll = Instance.new("ScrollingFrame", tPlayers)
 PlayerScroll.Size = UDim2.new(1, 0, 1, 0)
@@ -329,76 +329,90 @@ local function UpdatePlayerList()
         if child:IsA("Frame") then child:Destroy() end
     end
     for _, p in pairs(Players:GetPlayers()) do
-        local card = Instance.new("Frame", PlayerScroll)
-        card.Size = UDim2.new(1, 0, 0, 44)
-        card.BackgroundColor3 = Color3.fromRGB(30, 20, 48)
-        Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
+        if p ~= LocalPlayer then
+            local card = Instance.new("Frame", PlayerScroll)
+            card.Size = UDim2.new(1, 0, 0, 44)
+            card.BackgroundColor3 = Color3.fromRGB(30, 20, 48)
+            Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
 
-        local img = Instance.new("ImageLabel", card)
-        img.Size = UDim2.new(0, 34, 0, 34)
-        img.Position = UDim2.new(0, 5, 0.5, -17)
-        img.BackgroundColor3 = Color3.fromRGB(15, 10, 25)
-        img.Image = Players:GetUserThumbnailAsync(p.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-        Instance.new("UICorner", img).CornerRadius = UDim.new(1, 0)
+            local img = Instance.new("ImageLabel", card)
+            img.Size = UDim2.new(0, 34, 0, 34)
+            img.Position = UDim2.new(0, 5, 0.5, -17)
+            img.BackgroundColor3 = Color3.fromRGB(15, 10, 25)
+            img.Image = Players:GetUserThumbnailAsync(p.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+            Instance.new("UICorner", img).CornerRadius = UDim.new(1, 0)
 
-        local lbl = Instance.new("TextLabel", card)
-        lbl.Size = UDim2.new(0, 150, 1, 0)
-        lbl.Position = UDim2.new(0, 45, 0, 0)
-        lbl.BackgroundTransparency = 1
-        lbl.Font = Enum.Font.GothamBold
-        lbl.Text = p.Name
-        lbl.TextColor3 = Color3.fromRGB(240, 240, 255)
-        lbl.TextSize = 12
-        lbl.TextXAlignment = Enum.TextXAlignment.Left
+            local lbl = Instance.new("TextLabel", card)
+            lbl.Size = UDim2.new(0, 120, 1, 0)
+            lbl.Position = UDim2.new(0, 45, 0, 0)
+            lbl.BackgroundTransparency = 1
+            lbl.Font = Enum.Font.GothamBold
+            lbl.Text = p.Name
+            lbl.TextColor3 = Color3.fromRGB(240, 240, 255)
+            lbl.TextSize = 11
+            lbl.TextXAlignment = Enum.TextXAlignment.Left
 
-        -- TP
-        local tpB = Instance.new("TextButton", card)
-        tpB.Size = UDim2.new(0, 35, 0, 26)
-        tpB.Position = UDim2.new(1, -125, 0.5, -13)
-        tpB.BackgroundColor3 = Color3.fromRGB(124, 58, 237)
-        tpB.Text = "TP"
-        tpB.Font = Enum.Font.GothamBold
-        tpB.TextColor3 = Color3.fromRGB(255, 255, 255)
-        tpB.TextSize = 10
-        Instance.new("UICorner", tpB).CornerRadius = UDim.new(0, 4)
-        tpB.MouseButton1Click:Connect(function()
-            if p.Character and p.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame
-            end
-        end)
+            -- BANG BUTONU
+            local bangB = Instance.new("TextButton", card)
+            bangB.Size = UDim2.new(0, 45, 0, 26)
+            bangB.Position = UDim2.new(1, -175, 0.5, -13)
+            bangB.BackgroundColor3 = Color3.fromRGB(225, 29, 72)
+            bangB.Text = "Bang"
+            bangB.Font = Enum.Font.GothamBold
+            bangB.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bangB.TextSize = 10
+            Instance.new("UICorner", bangB).CornerRadius = UDim.new(0, 4)
+            bangB.MouseButton1Click:Connect(function() StartBang(p) end)
 
-        -- See
-        local seeB = Instance.new("TextButton", card)
-        seeB.Size = UDim2.new(0, 38, 0, 26)
-        seeB.Position = UDim2.new(1, -85, 0.5, -13)
-        seeB.BackgroundColor3 = Color3.fromRGB(88, 28, 135)
-        seeB.Text = "See"
-        seeB.Font = Enum.Font.GothamBold
-        seeB.TextColor3 = Color3.fromRGB(255, 255, 255)
-        seeB.TextSize = 10
-        Instance.new("UICorner", seeB).CornerRadius = UDim.new(0, 4)
-        seeB.MouseButton1Click:Connect(function()
-            if p.Character and p.Character:FindFirstChildOfClass("Humanoid") then
-                workspace.CurrentCamera.CameraSubject = p.Character:FindFirstChildOfClass("Humanoid")
-            end
-        end)
+            -- TP
+            local tpB = Instance.new("TextButton", card)
+            tpB.Size = UDim2.new(0, 32, 0, 26)
+            tpB.Position = UDim2.new(1, -125, 0.5, -13)
+            tpB.BackgroundColor3 = Color3.fromRGB(124, 58, 237)
+            tpB.Text = "TP"
+            tpB.Font = Enum.Font.GothamBold
+            tpB.TextColor3 = Color3.fromRGB(255, 255, 255)
+            tpB.TextSize = 10
+            Instance.new("UICorner", tpB).CornerRadius = UDim.new(0, 4)
+            tpB.MouseButton1Click:Connect(function()
+                if p.Character and p.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame
+                end
+            end)
 
-        -- Copy (Karakter Kopyala)
-        local cpB = Instance.new("TextButton", card)
-        cpB.Size = UDim2.new(0, 40, 0, 26)
-        cpB.Position = UDim2.new(1, -42, 0.5, -13)
-        cpB.BackgroundColor3 = Color3.fromRGB(16, 185, 129)
-        cpB.Text = "Copy"
-        cpB.Font = Enum.Font.GothamBold
-        cpB.TextColor3 = Color3.fromRGB(255, 255, 255)
-        cpB.TextSize = 10
-        Instance.new("UICorner", cpB).CornerRadius = UDim.new(0, 4)
-        cpB.MouseButton1Click:Connect(function()
-            if p.Character and LocalPlayer.Character then
-                local desc = p.Character:FindFirstChildOfClass("Humanoid"):GetAppliedDescription()
-                LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ApplyDescription(desc)
-            end
-        end)
+            -- See
+            local seeB = Instance.new("TextButton", card)
+            seeB.Size = UDim2.new(0, 35, 0, 26)
+            seeB.Position = UDim2.new(1, -88, 0.5, -13)
+            seeB.BackgroundColor3 = Color3.fromRGB(88, 28, 135)
+            seeB.Text = "See"
+            seeB.Font = Enum.Font.GothamBold
+            seeB.TextColor3 = Color3.fromRGB(255, 255, 255)
+            seeB.TextSize = 10
+            Instance.new("UICorner", seeB).CornerRadius = UDim.new(0, 4)
+            seeB.MouseButton1Click:Connect(function()
+                if p.Character and p.Character:FindFirstChildOfClass("Humanoid") then
+                    workspace.CurrentCamera.CameraSubject = p.Character:FindFirstChildOfClass("Humanoid")
+                end
+            end)
+
+            -- Copy
+            local cpB = Instance.new("TextButton", card)
+            cpB.Size = UDim2.new(0, 40, 0, 26)
+            cpB.Position = UDim2.new(1, -48, 0.5, -13)
+            cpB.BackgroundColor3 = Color3.fromRGB(16, 185, 129)
+            cpB.Text = "Copy"
+            cpB.Font = Enum.Font.GothamBold
+            cpB.TextColor3 = Color3.fromRGB(255, 255, 255)
+            cpB.TextSize = 10
+            Instance.new("UICorner", cpB).CornerRadius = UDim.new(0, 4)
+            cpB.MouseButton1Click:Connect(function()
+                if p.Character and LocalPlayer.Character then
+                    local desc = p.Character:FindFirstChildOfClass("Humanoid"):GetAppliedDescription()
+                    LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ApplyDescription(desc)
+                end
+            end)
+        end
     end
 end
 UpdatePlayerList()
@@ -406,7 +420,7 @@ Players.PlayerAdded:Connect(UpdatePlayerList)
 Players.PlayerRemoving:Connect(UpdatePlayerList)
 
 -- =========================================================
--- 💻 3. SCRIPT EXECUTOR SEKMESİ
+-- 💻 EXECUTOR
 -- =========================================================
 local execBox = Instance.new("TextBox", tExec)
 execBox.Size = UDim2.new(1, 0, 0, 200)
@@ -430,14 +444,13 @@ execBtn.Font = Enum.Font.GothamBold
 execBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 execBtn.TextSize = 12
 Instance.new("UICorner", execBtn).CornerRadius = UDim.new(0, 5)
-
 execBtn.MouseButton1Click:Connect(function()
     local func, err = loadstring(execBox.Text)
     if func then func() else warn(err) end
 end)
 
 -- =========================================================
--- 💬 CHAT KOMUTLARI V2 (@ SİSTEMİ DAHİL)
+-- 💬 CHAT KOMUTLARI (BANG @ DAHİL)
 -- =========================================================
 local function FindPlayerByPartialName(name)
     local targetName = name:gsub("@", ""):lower()
@@ -452,32 +465,24 @@ end
 LocalPlayer.Chatted:Connect(function(msg)
     local args = string.split(msg, " ")
     
-    -- Gui Toggle
     if msg == "&&cmd" then
         MainFrame.Visible = not MainFrame.Visible
-    -- Admin Tag
-    elseif msg == "adm" or msg == "000+e" then
-        pcall(function()
-            local chatArgs = {
-                [1] = "RPName",
-                [2] = "<font color='#8b5cf6'>[PoorsHub Admini]</font> " .. LocalPlayer.Name
-            }
-            ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(chatArgs[2], "All")
-        end)
-    -- Char Stealer Chat Command (Örn: char @OyuncuAdi)
+    elseif msg == "unbang" then
+        StopBang()
+    elseif args[1] == "bang" and args[2] then
+        local target = FindPlayerByPartialName(args[2])
+        if target then StartBang(target) end
     elseif args[1] == "char" and args[2] then
         local target = FindPlayerByPartialName(args[2])
         if target and target.Character and LocalPlayer.Character then
             local desc = target.Character:FindFirstChildOfClass("Humanoid"):GetAppliedDescription()
             LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ApplyDescription(desc)
         end
-    -- Goto Chat Command (Örn: goto @OyuncuAdi)
     elseif args[1] == "goto" and args[2] then
         local target = FindPlayerByPartialName(args[2])
         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character then
             LocalPlayer.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
         end
-    -- Spectate Chat Command (Örn: see @OyuncuAdi)
     elseif args[1] == "see" and args[2] then
         local target = FindPlayerByPartialName(args[2])
         if target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") then
@@ -486,11 +491,10 @@ LocalPlayer.Chatted:Connect(function(msg)
     end
 end)
 
--- Sağ Shift Tuşu İle Açma / Kapama
 UserInputService.InputBegan:Connect(function(input, gpe)
     if not gpe and input.KeyCode == Enum.KeyCode.RightShift then
         MainFrame.Visible = not MainFrame.Visible
     end
 end)
 
-print("PoorsHub Real v2.0 Successfully Loaded for Burak!")
+print("PoorsHub Real v3.0 (Delta Bang) Loaded!")
