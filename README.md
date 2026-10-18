@@ -19,7 +19,7 @@
 ---
 
 ## ⚡ Hızlı Erişim & Loadstrings
-Tüm oyunlar için hazır executor yükleme kodlarına ve loadstring bağlantılarına ulaşmak için lütfen **[Scripts/rawsLoadStrings.md](./Scripts/rawsLoadStrings.md)** dosyasını ziyaret edin!
+Tüm oyunlar için hazır executor yükleme kodlarına ve loadstring bağlantılarına ulaşmak için **[Scripts/rawsLoadStrings.md](./Scripts/rawsLoadStrings.md)** dosyasını ziyaret edin!
 
 ---
 
@@ -35,15 +35,15 @@ Tüm oyunlar için hazır executor yükleme kodlarına ve loadstring bağlantıl
 ## 🎮 Desteklenen Oyunlar & Modüller
 
 PoorsHub deposu içerisinde desteklenen oyun listesi:
-* 🌲 **Ormanda 99 Gece** (99 Nights in the Forest)
-* 🏠 **Brookhaven RP**
-* 🔪 **Murder Mystery 2** (MM2)
-* 🌪️ **Doğal Afette Hayatta Kal** (Natural Disaster Survival)
-* 🧗‍♂️ **Obbys & Parkur Modu**
-* 👮‍♂️ **Prison Life**
-* 🧠 **Steal a Brainrot** (Ultra Edition)
-* ⚔️ **En Güçlü Savaş Alanları** (The Strongest Battlegrounds)
-* 🗼 **Tower of Hell** (TOH)
+* 🌲 **Ormanda 99 Gece** (`Scripts/99NightsİnTheForest/script.lua`)
+* 🏠 **Brookhaven RP** (`Scripts/Brookhaven/script.lua`)
+* 🔪 **Murder Mystery 2** (`Scripts/MurderMystery2/script.lua`)
+* 🌪️ **Doğal Afette Hayatta Kal** (`Scripts/NaturalDisasterSurvival/script.lua`)
+* 🧗‍♂️ **Obbys & Parkur Modu** (`Scripts/Obbys/script.lua`)
+* 👮‍♂️ **Prison Life** (`Scripts/PrisonLife/script.lua`)
+* 🧠 **Steal a Brainrot** (`Scripts/StealaBrainrot/script.lua`)
+* ⚔️ **En Güçlü Savaş Alanları** (`Scripts/TheStrongestBattlegrounds/script.lua`)
+* 🗼 **Tower of Hell** (`Scripts/TowerOfHell/script.lua`)
 
 ---
 <p align="center"><i>Developed with ❤️ by burakdevv | PoorsHub 2026</i></p>
