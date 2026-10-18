@@ -49,7 +49,7 @@ PoorsHub deposu içerisinde şu an aktif olarak desteklenen oyun listesi:
 
 ## ⚡ Hızlı Başlangıç & Kullanım
 
-Herhangi bir scripti doğrudan executor programınıza (Delta, Xeno, Fluxus vb.) yapıştırarak çalıştırmak için **[rawsLoadStrings.md](./rawsLoadStrings.md)** dosyasını ziyaret edin ve dilediğiniz oyunun loadstring kodunu kopyalayın!
+Herhangi bir scripti doğrudan executor programınıza (Delta, Xeno, Fluxus vb.) yapıştırarak çalıştırmak için **[rawsLoadStrings.md](Scripts/rawsLoadStrings.md)** dosyasını ziyaret edin ve dilediğiniz oyunun loadstring kodunu kopyalayın!
 
 ---
 <p align="center"><i>Developed with ❤️ by burakdevv | PoorsHub 2026</i></p>
