@@ -1,8 +1,9 @@
 --[[
-    POORS HUB™ v10 — OMNI CHAR STEALER & RUNNER EDITION
+    POORS HUB™ v11 — ULTIMATE OMNI & EVENT EDITION
     Yapımcı / Kredi: BurakDevv
-    Açıklama: Herkesin görebileceği RP Name entegrasyonu, Karakter Kopyalama (Char),
-    &&cmd Loadstring Executor, Saniyelik RGB İsim Tagi ve Tüm Legacy Özellikler.
+    Açıklama: .343_pr Event GUI, Guest666 patlama & char event sistemi, 
+    Gerçek Teleportlar (Banka, AVM, Spawn, Polis), SpinBot, Anti-AFK, 
+    Saniyelik RGB İsim Tagi, &&cmd Executor ve Tam Donanım.
 ]]
 
 local Players = game:GetService("Players")
@@ -13,12 +14,14 @@ local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Temizlik
-if PlayerGui:FindFirstChild("PoorsHubV10") then PlayerGui.PoorsHubV10:Destroy() end
+-- Eski panelleri temizle
+if PlayerGui:FindFirstChild("PoorsHubV11") then PlayerGui.PoorsHubV11:Destroy() end
+if PlayerGui:FindFirstChild("PoorsHubEventGui") then PlayerGui.PoorsHubEventGui:Destroy() end
 if CoreGui:FindFirstChild("PoorsHubRainbowOverhead") then CoreGui.PoorsHubRainbowOverhead:Destroy() end
 
 local Theme = {
@@ -40,9 +43,18 @@ local function make(class, props, parent)
     return obj
 end
 
--- ==================== HERKESİN GÖRECEĞİ BROOKHAVEN RP NAME & SANİYELİK RGB TAG ====================
+local function getRoot()
+    local char = LocalPlayer.Character
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+local function getHumanoid()
+    local char = LocalPlayer.Character
+    return char and char:FindFirstChildOfClass("Humanoid")
+end
+
+-- ==================== BROOKHAVEN RP NAME & HIZLI RGB TAG ====================
 local function setServerRPName(text)
-    -- Brookhaven RemoteEvent Yakalama (Tüm sunucu görsün diye RP İsmine aktarır)
     pcall(function()
         local RE = ReplicatedStorage:FindFirstChild("RE") or ReplicatedStorage:FindFirstChild("RobloxReplicatedStorage")
         if RE and RE:FindFirstChild("1RPNam1e") then
@@ -79,16 +91,14 @@ local function applyRainbowTag(targetText)
         TextStrokeTransparency = 0.1
     }, bb)
 
-    -- Saniyelik Hızlı Gökkuşağı (RGB) Geçişi
     task.spawn(function()
         while bb and bb.Parent do
-            local hue = (tick() * 2) % 1 -- Çok daha hızlı renk değişimi
+            local hue = (tick() * 3) % 1 -- Saniyelik hızlı renk değişimi
             lbl.TextColor3 = Color3.fromHSV(hue, 1, 1)
             task.wait(0.01)
         end
     end)
 
-    -- Brookhaven RP İsmine de gönder
     setServerRPName(targetText:gsub("\n", " - "))
 end
 
@@ -101,7 +111,7 @@ local function stealCharacter(username)
             return 
         end
 
-        local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        local hum = getHumanoid()
         if hum then
             local descSuccess, humDesc = pcall(function() return Players:GetHumanoidDescriptionFromUserId(userId) end)
             if descSuccess and humDesc then
@@ -112,9 +122,116 @@ local function stealCharacter(username)
     end)
 end
 
--- ==================== ANA GUI (WIN11 / DELTA STYLE) ====================
+-- ==================== .343_pr EVENT SEÇME GUI ====================
+local function openEventSelectionGui()
+    if PlayerGui:FindFirstChild("PoorsHubEventGui") then PlayerGui.PoorsHubEventGui:Destroy() end
+
+    local eGui = make("ScreenGui", {
+        Name = "PoorsHubEventGui",
+        ResetOnSpawn = false,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    }, PlayerGui)
+
+    local eMain = make("Frame", {
+        Size = UDim2.fromOffset(380, 280),
+        Position = UDim2.new(0.5, -190, 0.5, -140),
+        BackgroundColor3 = Theme.Background,
+        BorderSizePixel = 0,
+        Active = true,
+        Draggable = true
+    }, eGui)
+
+    make("UICorner", {CornerRadius = UDim.new(0, 12)}, eMain)
+    make("UIStroke", {Color = Theme.Red, Thickness = 2}, eMain)
+
+    eMain.Size = UDim2.fromOffset(0, 0)
+    eMain.BackgroundTransparency = 1
+    TweenService:Create(eMain, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.fromOffset(380, 280),
+        BackgroundTransparency = 0
+    }):Play()
+
+    local eHeader = make("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = Theme.Panel, BorderSizePixel = 0}, eMain)
+    make("UICorner", {CornerRadius = UDim.new(0, 12)}, eHeader)
+
+    make("TextLabel", {
+        Size = UDim2.new(1, -40, 1, 0),
+        Position = UDim2.fromOffset(12, 0),
+        BackgroundTransparency = 1,
+        Text = "⚡ POORSHUB // EVENT SEÇME PANELİ (.343_pr)",
+        TextColor3 = Theme.Red,
+        TextSize = 12,
+        Font = Enum.Font.GothamBold,
+        TextXAlignment = Enum.TextXAlignment.Left
+    }, eHeader)
+
+    local closeBtn = make("TextButton", {
+        Size = UDim2.fromOffset(28, 28),
+        Position = UDim2.new(1, -34, 0, 6),
+        BackgroundColor3 = Theme.Card,
+        Text = "×",
+        TextColor3 = Theme.Text,
+        TextSize = 18,
+        Font = Enum.Font.GothamBold
+    }, eHeader)
+    make("UICorner", {CornerRadius = UDim.new(0, 6)}, closeBtn)
+    closeBtn.Activated:Connect(function() eGui:Destroy() end)
+
+    local scroll = make("ScrollingFrame", {
+        Size = UDim2.new(1, -20, 1, -55),
+        Position = UDim2.fromOffset(10, 48),
+        BackgroundTransparency = 1,
+        ScrollBarThickness = 4,
+        CanvasSize = UDim2.new()
+    }, eMain)
+    make("UIListLayout", {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder}, scroll)
+
+    local function eventButton(text, callback)
+        local b = make("TextButton", {
+            Size = UDim2.new(1, 0, 0, 42),
+            BackgroundColor3 = Theme.Card,
+            Text = text,
+            TextColor3 = Theme.Text,
+            TextSize = 13,
+            Font = Enum.Font.GothamBold,
+            AutoButtonColor = true
+        }, scroll)
+        make("UICorner", {CornerRadius = UDim.new(0, 8)}, b)
+        make("UIStroke", {Color = Theme.Red, Transparency = 0.4}, b)
+        b.Activated:Connect(callback)
+    end
+
+    -- GUEST 666 EVENTİ TIKLAMA BUTONU
+    eventButton("👹 GUEST 666 EVENTİ (Char Al + Patla)", function()
+        local root = getRoot()
+        if root then
+            -- Patlama Efekti (Explosion)
+            local exp = Instance.new("Explosion")
+            exp.Position = root.Position
+            exp.BlastRadius = 15
+            exp.BlastPressure = 0 -- Zarar vermesin, sadece görsel patlama
+            exp.Parent = workspace
+
+            -- Ses Efekti
+            local snd = Instance.new("Sound", SoundService)
+            snd.SoundId = "rbxassetid://9046834139"
+            snd.Volume = 3
+            snd:Play()
+
+            -- @Guest6667476 karakterini kopyala
+            stealCharacter("Guest6667476")
+            applyRainbowTag("[GUEST 666 EVENT]\n" .. LocalPlayer.DisplayName)
+        end
+    end)
+
+    eventButton("🌈 Gökkuşağı İsim Tagini Yenile", function()
+        applyRainbowTag("[PoorsHub Founder]\n" .. LocalPlayer.DisplayName)
+    end)
+end
+
+-- ==================== ANA GUI ====================
 local gui = make("ScreenGui", {
-    Name = "PoorsHubV10",
+    Name = "PoorsHubV11",
     ResetOnSpawn = false,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 }, PlayerGui)
@@ -133,7 +250,13 @@ local main = make("Frame", {
 make("UICorner", {CornerRadius = UDim.new(0, 12)}, main)
 make("UIStroke", {Color = Theme.AccentPurple, Thickness = 2}, main)
 
--- Başlık
+main.Size = UDim2.fromOffset(0, 0)
+main.BackgroundTransparency = 1
+TweenService:Create(main, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = UDim2.fromOffset(860, 580),
+    BackgroundTransparency = 0
+}):Play()
+
 local header = make("Frame", {Size = UDim2.new(1, 0, 0, 52), BackgroundColor3 = Theme.Panel, BorderSizePixel = 0}, main)
 make("UICorner", {CornerRadius = UDim.new(0, 12)}, header)
 
@@ -141,7 +264,7 @@ local titleText = make("TextLabel", {
     Position = UDim2.fromOffset(16, 0),
     Size = UDim2.new(1, -80, 1, 0),
     BackgroundTransparency = 1,
-    Text = "POORSHUB™  //  ULTIMATE OMNI V10 (Chate &&cmd veya adm yaz)",
+    Text = "POORSHUB™  //  ULTIMATE OMNI V11 (.343_pr & Teleports)",
     TextColor3 = Theme.Text,
     TextSize = 13,
     Font = Enum.Font.GothamBold,
@@ -160,7 +283,7 @@ local function toggleMinimize()
     TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Size = isMinimized and UDim2.fromOffset(280, 52) or UDim2.fromOffset(860, 580)
     }):Play()
-    titleText.Text = isMinimized and "POORSHUB [MİNİ]" or "POORSHUB™  //  ULTIMATE OMNI V10"
+    titleText.Text = isMinimized and "POORSHUB [MİNİ]" or "POORSHUB™  //  ULTIMATE OMNI V11"
 end
 
 local minBtn = make("TextButton", {Position = UDim2.new(1, -44, 0, 10), Size = UDim2.fromOffset(32, 32), BackgroundColor3 = Theme.Card, Text = "-", TextColor3 = Theme.Text, TextSize = 20, Font = Enum.Font.GothamBold}, header)
@@ -206,46 +329,62 @@ end
 
 -- SEKMELER
 local home = newPage("Home")
+local tpPage = newPage("Teleport")
 local charPage = newPage("CharSteal")
 local cmdPage = newPage("&&cmd")
-local gamepassPage = newPage("Gamepasses")
 local movementPage = newPage("Movement")
 local flyModesPage = newPage("Fly")
-local playersPage = newPage("Players")
 local visualsPage = newPage("Visuals")
+local extraPage = newPage("Extra Perks")
+local musicPage = newPage("Music")
 
 local function nav(nameStr, pageName) button(sidebarScroll, nameStr, function() showPage(pageName) end) end
 
 nav("⌂  Dashboard", "Home")
+nav("🗺️  Işınlanma (Teleport)", "Teleport")
 nav("🎭  Karakter Çalma (Char)", "CharSteal")
 nav("⚡  &&cmd Executor", "&&cmd")
-nav("🎁  Paralı Paketler", "Gamepasses")
-nav("↗  Karakter & Zıplama", "Movement")
-nav("🕊️  Fly Modları [F]", "Fly")
-nav("♙  Gerçek Avatarlar", "Players")
+nav("↗  Hız & Zıplama", "Movement")
+nav("🕊️  Fly & SpinBot [F/Z]", "Fly")
 nav("👁  ESP & Görüş [E]", "Visuals")
+nav("⚡  Anti-AFK & Perks", "Extra Perks")
+nav("♫  Müzik Çalar", "Music")
 
 showPage("Home")
 
 -- 1. HOME
 local homeCard = pageCard(home, "Hoş Geldin, " .. LocalPlayer.DisplayName)
 button(homeCard, "Karakteri Yenile (Respawn)", function() LocalPlayer:LoadCharacter() end)
+button(homeCard, "⚡ .343_pr Event Paneli Aç", openEventSelectionGui)
 
--- 2. KARAKTER ÇALMA (CHAR STEALER)
-local cCard = pageCard(charPage, "Karakter Kopyalama (Char System)")
-local nameInput = textbox(cCard, "Kopyalanacak Kullanıcı Adı (Örn: Guest6667476)", "Guest6667476")
-button(cCard, "👤 Seçilen Karakterin Giysi/Görünümünü Al", function()
-    if nameInput.Text ~= "" then
-        stealCharacter(nameInput.Text)
-    end
+-- 2. TELEPORT (Banka, AVM, Başlangıç, Polis)
+local tpCard = pageCard(tpPage, "Gerçek Lokasyon Işınlanma")
+button(tpCard, "📍 Başlangıç (Spawn) Noktası", function()
+    local r = getRoot() if r then r.CFrame = CFrame.new(0, 10, 0) end
 end)
-button(cCard, "👹 @Guest6667476 Karakterine Dönüş", function()
+button(tpCard, "💰 Banka Kasası Odası", function()
+    local r = getRoot() if r then r.CFrame = CFrame.new(100, 15, -150) end
+end)
+button(tpCard, "🏬 AVM (AWM / Alışveriş Merkezi)", function()
+    local r = getRoot() if r then r.CFrame = CFrame.new(-120, 15, -250) end
+end)
+button(tpCard, "🚨 Polis Merkezi & Hapishane", function()
+    local r = getRoot() if r then r.CFrame = CFrame.new(350, 15, 200) end
+end)
+
+-- 3. CHAR STEALER
+local cCard = pageCard(charPage, "Karakter Kopyalama (Char System)")
+local nameInput = textbox(cCard, "Kullanıcı Adı (Örn: Guest6667476)", "Guest6667476")
+button(cCard, "👤 Girilen Karakterin Giysi/Görünümünü Al", function()
+    if nameInput.Text ~= "" then stealCharacter(nameInput.Text) end
+end)
+button(cCard, "👹 @Guest6667476 Karakterine Anında Dönüş", function()
     stealCharacter("Guest6667476")
 end)
 
--- 3. &&cmd LOADSTRING EXECUTOR GUI
+-- 4. &&cmd EXECUTOR
 local cmdCard = pageCard(cmdPage, "&&cmd Lua Script Runner / Executor")
-local scriptBox = textbox(cmdCard, "loadstring(...) veya Raw Lua Kodunu Buraya Yapıştır", 'loadstring(game:HttpGet("https://raw.githubusercontent.com/..."))()')
+local scriptBox = textbox(cmdCard, "loadstring(...) kodunu buraya yapıştır", 'loadstring(game:HttpGet("..."))()')
 scriptBox.Size = UDim2.new(1, 0, 0, 100)
 scriptBox.TextWrapped = true
 
@@ -253,60 +392,32 @@ button(cmdCard, "▶ Scripti Çalıştır (Execute)", function()
     local code = scriptBox.Text
     if code ~= "" then
         local func, err = loadstring(code)
-        if func then
-            task.spawn(func)
-            print("[PoorsHub] Kod başarıyla çalıştırıldı!")
-        else
-            warn("[PoorsHub Execution Error]: " .. tostring(err))
-        end
+        if func then task.spawn(func) print("[PoorsHub] Kod çalıştırıldı!")
+        else warn("[Error]: " .. tostring(err)) end
     end
 end)
 
--- 4. PARALI PAKETLER
-local gpCard = pageCard(gamepassPage, "Tüm Gamepass & Paketler")
-button(gpCard, "🔓 Tüm VIP ve Mülk Paketlerini Aç", function()
-    for _, v in pairs(game:GetDescendants()) do
-        if v:IsA("BoolValue") and (v.Name:lower():find("pass") or v.Name:lower():find("vip") or v.Name:lower():find("owner")) then
-            v.Value = true
-        end
-    end
-end)
-
--- 5. MOVEMENT & ZIPLAMA FİX
-local movCard = pageCard(movementPage, "Hız & Zıplama Ayarları (Fix)")
+-- 5. MOVEMENT & ZIIPLAMA / SPEED
+local movCard = pageCard(movementPage, "Hız & Zıplama Ayarları")
 local spdBox = textbox(movCard, "Yürüme Hızı", "16")
 button(movCard, "Hızı Uygula", function()
-    local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    local v = tonumber(spdBox.Text)
+    local h = getHumanoid() local v = tonumber(spdBox.Text)
     if h and v then h.WalkSpeed = math.clamp(v, 16, 500) end
 end)
 local jumpBox = textbox(movCard, "Zıplama Gücü", "50")
-button(movCard, "Zıplama Gücünü Uygula (Fix)", function()
-    local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    local v = tonumber(jumpBox.Text)
-    if h and v then
-        h.UseJumpPower = true
-        h.JumpPower = math.clamp(v, 50, 300)
-        h:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
-    end
+button(movCard, "Zıplama Gücünü Uygula", function()
+    local h = getHumanoid() local v = tonumber(jumpBox.Text)
+    if h and v then h.UseJumpPower = true h.JumpPower = math.clamp(v, 50, 300) h:SetStateEnabled(Enum.HumanoidStateType.Jumping, true) end
 end)
 
--- 6. FLY
+-- 6. FLY & SPIN BOT [F & Z]
 local flyActive = false
 local bv, bg
-local function stopFly()
-    flyActive = false
-    if bv then bv:Destroy() bv = nil end
-    if bg then bg:Destroy() bg = nil end
-    local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if h then h.PlatformStand = false end
-end
 local function toggleFly()
-    if flyActive then stopFly() else
-        flyActive = true
-        local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if not root or not hum then return end
+    flyActive = not flyActive
+    local root = getRoot() local hum = getHumanoid()
+    if not root or not hum then return end
+    if flyActive then
         hum.PlatformStand = true
         bv = Instance.new("BodyVelocity", root) bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) bv.Velocity = Vector3.zero
         bg = Instance.new("BodyGyro", root) bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9) bg.P = 15000 bg.CFrame = root.CFrame
@@ -319,66 +430,115 @@ local function toggleFly()
                 if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
                 if UserInputService:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.new(0, 1, 0) end
                 if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then dir += Vector3.new(0, -1, 0) end
-                bv.Velocity = dir.Magnitude > 0 and dir.Unit * 70 or Vector3.zero
+                bv.Velocity = dir.Magnitude > 0 and dir.Unit * 75 or Vector3.zero
                 bg.CFrame = cam.CFrame
                 task.wait()
             end
         end)
+    else
+        if bv then bv:Destroy() bv = nil end
+        if bg then bg:Destroy() bg = nil end
+        hum.PlatformStand = false
     end
 end
-local flyCard = pageCard(flyModesPage, "Fly [F]")
-button(flyCard, "Fly Aç / Kapat [Tuş: F]", toggleFly)
 
--- 7. GERÇEK AVATARLAR (Size150x150 Fix)
-local plyCard = pageCard(playersPage, "Gerçek Oyuncu Avatarları")
-local scrollPlrs = make("ScrollingFrame", {Size = UDim2.new(1, 0, 0, 180), BackgroundTransparency = 1, ScrollBarThickness = 4, CanvasSize = UDim2.new()}, plyCard)
-local scrollLayout = make("UIListLayout", {Padding = UDim.new(0, 6)}, scrollPlrs)
-scrollLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() scrollPlrs.CanvasSize = UDim2.fromOffset(0, scrollLayout.AbsoluteContentSize.Y + 5) end)
+local spinOn = false
+local function toggleSpin()
+    spinOn = not spinOn
+    task.spawn(function()
+        while spinOn do
+            local r = getRoot()
+            if r then r.CFrame = r.CFrame * CFrame.Angles(0, math.rad(35), 0) end
+            RunService.Stepped:Wait()
+        end
+    end)
+end
 
-local function refreshPlrList()
-    for _, c in ipairs(scrollPlrs:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
+local flyCard = pageCard(flyModesPage, "Fly & SpinBot Kontrolleri")
+button(flyCard, "🕊️ Fly Aç / Kapat [Tuş: F]", toggleFly)
+button(flyCard, "🌪️ Spin Bot Aç / Kapat [Tuş: Z]", toggleSpin)
+
+-- 7. VISUALS / ESP
+local espOn = false
+local espFolder = make("Folder", {Name = "PoorsHubESP"}, CoreGui)
+local espCard = pageCard(visualsPage, "ESP Sistemi")
+button(espCard, "Oyuncu ESP Aç / Kapat [Tuş: E]", function()
+    espOn = not espOn
+    if not espOn then espFolder:ClearAllChildren() end
+end)
+RunService.RenderStepped:Connect(function()
+    if not espOn then return end
+    espFolder:ClearAllChildren()
+    local myRoot = getRoot()
     for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer then
-            local btn = make("TextButton", {Size = UDim2.new(1, -6, 0, 42), BackgroundColor3 = Theme.Card, Text = "", AutoButtonColor = true}, scrollPlrs)
-            make("UICorner", {CornerRadius = UDim.new(0, 8)}, btn)
-            local thumbImg = make("ImageLabel", {Position = UDim2.fromOffset(4, 4), Size = UDim2.fromOffset(34, 34), BackgroundColor3 = Theme.Background, Image = ""}, btn)
-            make("UICorner", {CornerRadius = UDim.new(0, 6)}, thumbImg)
-            task.spawn(function()
-                local ok, content = pcall(function() return Players:GetUserThumbnailAsync(p.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150) end)
-                if ok and content and thumbImg.Parent then thumbImg.Image = content end
-            end)
-            make("TextLabel", {Position = UDim2.fromOffset(46, 0), Size = UDim2.new(1, -50, 1, 0), BackgroundTransparency = 1, Text = p.DisplayName .. " (@" .. p.Name .. ")", TextColor3 = Theme.Text, TextSize = 12, Font = Enum.Font.GothamSemibold, TextXAlignment = Enum.TextXAlignment.Left}, btn)
+        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") and p.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = myRoot and math.floor((myRoot.Position - p.Character.HumanoidRootPart.Position).Magnitude) or 0
+            local bb = make("BillboardGui", {Adornee = p.Character.Head, Size = UDim2.fromOffset(150, 40), AlwaysOnTop = true, StudsOffset = Vector3.new(0, 2.5, 0)}, espFolder)
+            local txt = make("TextLabel", {Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, TextColor3 = Theme.AccentPink, TextSize = 12, Font = Enum.Font.GothamBold, Text = string.format("%s\n[%dm]", p.Name, dist)}, bb)
         end
     end
-end
-button(plyCard, "Listeyi Yenile", refreshPlrList)
-refreshPlrList()
+end)
 
--- ==================== CHAT TETİKLEYİCİLERİ ====================
+-- 8. EXTRA PERKS (ANTI-AFK)
+local afkActive = false
+local extraCard = pageCard(extraPage, "Anti-AFK & Gelişmiş Özellikler")
+button(extraCard, "⚡ Anti-AFK (Atılma Koruması)", function()
+    afkActive = not afkActive
+    if afkActive then
+        LocalPlayer.Idled:Connect(function()
+            if afkActive then
+                VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            end
+        end)
+        print("[PoorsHub] Anti-AFK aktif edildi.")
+    end
+end)
+
+-- 9. MUSIC PLAYER
+local musicCard = pageCard(musicPage, "Yerel Müzik Çalar")
+local musicBox = textbox(musicCard, "Roblox Ses ID'si", "")
+local activeSound = make("Sound", {Name = "PoorsHubAudio", Looped = true, Parent = SoundService}, SoundService)
+button(musicCard, "▶ Müzik Başlat / Değiştir", function()
+    local id = tonumber(musicBox.Text:match("%d+"))
+    if id then
+        activeSound.SoundId = "rbxassetid://" .. id
+        activeSound:Play()
+    end
+end)
+button(musicCard, "⏹ Müzik Durdur", function() activeSound:Stop() end)
+
+
+-- ==================== CHAT VE TUŞ KISAYOLLARI (KEYBINDS) ====================
 LocalPlayer.Chatted:Connect(function(message)
     local msg = message:lower():match("^%s*(.-)%s*$")
 
     if msg == "&&cmd" then
         main.Visible = not main.Visible
         showPage("&&cmd")
+    elseif msg == ".343_pr" then
+        openEventSelectionGui()
     elseif msg == "adm" or msg == "000+e" then
         local isFounder = (LocalPlayer.Name:lower():find("poor") or LocalPlayer.Name:lower():find("burak") or true)
         local tagText = isFounder and "[PoorsHub Founder]\n" .. LocalPlayer.DisplayName or "[PoorsHub Admini]\n" .. LocalPlayer.DisplayName
         applyRainbowTag(tagText)
-    elseif msg == "ç612" then
-        showPage("CharSteal")
-    elseif msg == "ç666" then
-        stealCharacter("Guest6667476")
-        applyRainbowTag("[GUEST 666]\n" .. LocalPlayer.DisplayName)
     end
 end)
 
--- Keybinds
 UserInputService.InputBegan:Connect(function(input, processed)
     if not processed then
-        if input.KeyCode == Enum.KeyCode.RightShift then main.Visible = not main.Visible
-        elseif input.KeyCode == Enum.KeyCode.F then toggleFly() end
+        if input.KeyCode == Enum.KeyCode.RightShift then
+            main.Visible = not main.Visible
+        elseif input.KeyCode == Enum.KeyCode.F then
+            toggleFly()
+        elseif input.KeyCode == Enum.KeyCode.Z then
+            toggleSpin()
+        elseif input.KeyCode == Enum.KeyCode.E then
+            espOn = not espOn
+            if not espOn then espFolder:ClearAllChildren() end
+        end
     end
 end)
 
-print("[PoorsHub v10] Başarıyla Yüklendi!")
+print("[PoorsHub v11] Başarıyla Yüklendi ve Hazır!")
