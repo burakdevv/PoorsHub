@@ -1,3 +1,6 @@
+loadstring(game:HttpGet("https://scriptblox.com/raw/Universal-Script-Moondiety-Scripts-Hub-45712"))()
+
+
 <div align="center">
 
   # ⚡ POORSHUB LOADSTRING MERKEZİ
