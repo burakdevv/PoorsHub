@@ -1,8 +1,8 @@
 --[[
     ========================================================
-    PoorsHub Real Edition - Fully Working Client & Remote Logic
-    Compatible with: Delta / Xeno / Synapse X / Fluxus
-    All Fake/Non-working functions completely removed.
+    PoorsHub Real v2.0 - Ultimate Working Edition
+    Features: All-in-One Search Bar + @Chat Commands + Full Functional Logic
+    Target: Delta / Xeno / Synapse X / Fluxus
     ========================================================
 ]]--
 
@@ -17,28 +17,26 @@ local CoreGui = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Aktif Durum Yönetimi
+-- Aktif Durum Hafızası
 local States = {
     Noclip = false,
     InfJump = false,
     Fly = false,
-    FlySpeed = 50,
-    SpinBot = false,
-    ESP = false,
-    Fullbright = false
+    FlySpeed = 60,
+    SpinBot = false
 }
 
--- ScreenGui
+-- ScreenGui Kapsayıcısı
 local PoorsHubGui = Instance.new("ScreenGui")
-PoorsHubGui.Name = "PoorsHub_RealEdition"
+PoorsHubGui.Name = "PoorsHub_Real_v2"
 PoorsHubGui.Parent = (syn and CoreGui) or (gethui and gethui()) or CoreGui
 PoorsHubGui.ResetOnSpawn = false
 
--- Ana Panel (Win11 / Delta Mor Teması)
+-- Ana Çerçeve (Win11 / Delta Mor-Koyu Tasarım)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 680, 0, 440)
-MainFrame.Position = UDim2.new(0.5, -340, 0.5, -220)
+MainFrame.Size = UDim2.new(0, 700, 0, 460)
+MainFrame.Position = UDim2.new(0.5, -350, 0.5, -230)
 MainFrame.BackgroundColor3 = Color3.fromRGB(18, 12, 28)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -46,22 +44,22 @@ MainFrame.Draggable = true
 MainFrame.Parent = PoorsHubGui
 
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
-local Stroke = Instance.new("UIStroke", MainFrame)
-Stroke.Color = Color3.fromRGB(139, 92, 246)
-Stroke.Thickness = 2
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(139, 92, 246)
+MainStroke.Thickness = 2
 
--- TopBar
+-- TopBar (Üst Bar)
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 40)
 TopBar.BackgroundColor3 = Color3.fromRGB(28, 18, 44)
 Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 10)
 
 local Title = Instance.new("TextLabel", TopBar)
-Title.Size = UDim2.new(0, 300, 1, 0)
+Title.Size = UDim2.new(0, 350, 1, 0)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
-Title.Text = "PoorsHub Real v1.0 | Real Working Features"
+Title.Text = "PoorsHub Real v2.0 | Search & Chat Commands"
 Title.TextColor3 = Color3.fromRGB(235, 225, 255)
 Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -77,13 +75,13 @@ CloseBtn.TextSize = 12
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
 CloseBtn.MouseButton1Click:Connect(function() PoorsHubGui:Destroy() end)
 
--- Sidebar & Content
+-- Sidebar & İçerik Alanı
 local Sidebar = Instance.new("ScrollingFrame", MainFrame)
 Sidebar.Size = UDim2.new(0, 150, 1, -45)
 Sidebar.Position = UDim2.new(0, 5, 0, 42)
 Sidebar.BackgroundColor3 = Color3.fromRGB(24, 15, 38)
 Sidebar.BorderSizePixel = 0
-Sidebar.CanvasSize = UDim2.new(0, 0, 0, 400)
+Sidebar.CanvasSize = UDim2.new(0, 0, 0, 300)
 Sidebar.ScrollBarThickness = 2
 Instance.new("UIListLayout", Sidebar).Padding = UDim.new(0, 4)
 
@@ -94,13 +92,10 @@ Container.BackgroundTransparency = 1
 
 local tabs = {}
 local function CreateTab(name)
-    local tabContent = Instance.new("ScrollingFrame", Container)
+    local tabContent = Instance.new("Frame", Container)
     tabContent.Size = UDim2.new(1, 0, 1, 0)
     tabContent.BackgroundTransparency = 1
     tabContent.Visible = false
-    tabContent.CanvasSize = UDim2.new(0, 0, 0, 800)
-    tabContent.ScrollBarThickness = 4
-    Instance.new("UIListLayout", tabContent).Padding = UDim.new(0, 6)
 
     local btn = Instance.new("TextButton", Sidebar)
     btn.Size = UDim2.new(1, -6, 0, 32)
@@ -121,48 +116,90 @@ local function CreateTab(name)
     return tabContent
 end
 
-local function AddButton(tab, text, callback)
-    local btn = Instance.new("TextButton", tab)
-    btn.Size = UDim2.new(1, -10, 0, 30)
-    btn.BackgroundColor3 = Color3.fromRGB(52, 34, 82)
+-- SEKMELER
+local tAll = CreateTab("🔍 TÜMÜ & ARAMA")
+local tPlayers = CreateTab("👥 OYUNCULAR")
+local tExec = CreateTab("💻 EXECUTOR")
+
+-- =========================================================
+-- 🔍 1. TÜMÜ VE ARAMA SİSTEMİ (SEARCH BAR)
+-- =========================================================
+local SearchBox = Instance.new("TextBox", tAll)
+SearchBox.Size = UDim2.new(1, -10, 0, 32)
+SearchBox.Position = UDim2.new(0, 0, 0, 0)
+SearchBox.BackgroundColor3 = Color3.fromRGB(28, 18, 46)
+SearchBox.PlaceholderText = "🔎 Özellik ara... (Örn: Fly, Speed, Spawn, ESP)..."
+SearchBox.Text = ""
+SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SearchBox.Font = Enum.Font.Gotham
+SearchBox.TextSize = 11
+Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
+
+local ActionScroll = Instance.new("ScrollingFrame", tAll)
+ActionScroll.Size = UDim2.new(1, -10, 1, -38)
+ActionScroll.Position = UDim2.new(0, 0, 0, 38)
+ActionScroll.BackgroundTransparency = 1
+ActionScroll.CanvasSize = UDim2.new(0, 0, 0, 1000)
+ActionScroll.ScrollBarThickness = 4
+
+local ActionList = Instance.new("UIListLayout", ActionScroll)
+ActionList.SortOrder = Enum.SortOrder.LayoutOrder
+ActionList.Padding = UDim.new(0, 5)
+
+local allButtons = {}
+
+local function AddActionButton(name, callback)
+    local btn = Instance.new("TextButton", ActionScroll)
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(48, 30, 78)
     btn.Font = Enum.Font.Gotham
-    btn.Text = text
+    btn.Text = name
     btn.TextColor3 = Color3.fromRGB(245, 245, 255)
     btn.TextSize = 11
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
     btn.MouseButton1Click:Connect(callback)
+
+    table.insert(allButtons, {Frame = btn, Text = name:lower()})
 end
 
--- SEKMELER
-local t1 = CreateTab("🗺️ Teleport")
-local t2 = CreateTab("👤 Karakter")
-local t3 = CreateTab("📊 ESP & Görüş")
-local t4 = CreateTab("👥 Oyuncular")
-local t5 = CreateTab("🎵 Müzik & Event")
-local t6 = CreateTab("💻 Executor")
+-- Dynamic Search Logic
+SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local query = SearchBox.Text:lower()
+    for _, item in pairs(allButtons) do
+        if query == "" or string.find(item.Text, query) then
+            item.Frame.Visible = true
+        else
+            item.Frame.Visible = false
+        end
+    end
+end)
 
--- 1. TELEPORT (Harita İçi %100 Çalışan Koordinatlar)
-AddButton(t1, "Ana Meydan (Spawn)", function()
+-- TÜM GERÇEK ÇALIŞAN ÖZELLİKLERİ LİSTEYE EKLEME
+AddActionButton("1. Spawn Meydanına Işınlan (Spawn TP)", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 15, 0)
     end
 end)
-AddButton(t1, "Banka Kasası Önü", function()
+
+AddActionButton("2. Banka Kasasına Işınlan (Bank Safe TP)", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-20, 10, -165)
     end
 end)
-AddButton(t1, "Gizli Ajans Odası", function()
+
+AddActionButton("3. Gizli Ajans Odasına Işınlan", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-70, 5, -160)
     end
 end)
-AddButton(t1, "Hastane", function()
+
+AddActionButton("4. Hastaneye Işınlan", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-180, 12, -40)
     end
 end)
-AddButton(t1, "Click TP (Ekranda Tıklanan Yere Git)", function()
+
+AddActionButton("5. Click TP (Mouse Tıklanan Yere Git)", function()
     local mouse = LocalPlayer:GetMouse()
     local conn
     conn = mouse.Button1Down:Connect(function()
@@ -173,20 +210,21 @@ AddButton(t1, "Click TP (Ekranda Tıklanan Yere Git)", function()
     end)
 end)
 
--- 2. KARAKTER HİLELERİ (Client-Side Mantığı)
-AddButton(t2, "Yürüme Hızı (WalkSpeed 100)", function()
+AddActionButton("6. Yürüme Hızı (WalkSpeed 100)", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
         LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = 100
     end
 end)
-AddButton(t2, "Zıplama Gücü (JumpPower 120)", function()
+
+AddActionButton("7. Zıplama Gücü (JumpPower 120)", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
         local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
         hum.UseJumpPower = true
         hum.JumpPower = 120
     end
 end)
-AddButton(t2, "Noclip (Duvarlardan Geçme)", function()
+
+AddActionButton("8. Noclip (Duvarlardan Geçme Aç/Kapat)", function()
     States.Noclip = not States.Noclip
     RunService.Stepped:Connect(function()
         if States.Noclip and LocalPlayer.Character then
@@ -196,7 +234,8 @@ AddButton(t2, "Noclip (Duvarlardan Geçme)", function()
         end
     end)
 end)
-AddButton(t2, "Sonsuz Zıplama (Infinite Jump)", function()
+
+AddActionButton("9. Sonsuz Zıplama (Infinite Jump)", function()
     States.InfJump = true
     UserInputService.JumpRequest:Connect(function()
         if States.InfJump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
@@ -204,7 +243,8 @@ AddButton(t2, "Sonsuz Zıplama (Infinite Jump)", function()
         end
     end)
 end)
-AddButton(t2, "Fly (Uçma Modu - F Tuşu)", function()
+
+AddActionButton("10. Fly (Uçma Modu - F Tuşu)", function()
     States.Fly = not States.Fly
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
@@ -228,7 +268,8 @@ AddButton(t2, "Fly (Uçma Modu - F Tuşu)", function()
         end)
     end
 end)
-AddButton(t2, "Spin Bot (Hızlı Dönme)", function()
+
+AddActionButton("11. Spin Bot (Çılgınca Dönme)", function()
     States.SpinBot = not States.SpinBot
     spawn(function()
         while States.SpinBot do
@@ -240,8 +281,7 @@ AddButton(t2, "Spin Bot (Hızlı Dönme)", function()
     end)
 end)
 
--- 3. ESP VE GÖRÜŞ
-AddButton(t3, "Oyuncu Kutuları (Highlight ESP)", function()
+AddActionButton("12. Oyuncu Kutuları (Highlight ESP)", function()
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character then
             local hl = Instance.new("Highlight", p.Character)
@@ -250,7 +290,8 @@ AddButton(t3, "Oyuncu Kutuları (Highlight ESP)", function()
         end
     end
 end)
-AddButton(t3, "Ev Kasalarını Göster (Safe ESP)", function()
+
+AddActionButton("13. Ev Kasalarını Göster (Safe ESP)", function()
     for _, v in pairs(workspace:GetDescendants()) do
         if v.Name == "Safe" then
             local hl = Instance.new("Highlight", v)
@@ -258,22 +299,32 @@ AddButton(t3, "Ev Kasalarını Göster (Safe ESP)", function()
         end
     end
 end)
-AddButton(t3, "Gece Görüşü (Fullbright)", function()
+
+AddActionButton("14. Gece Görüşü (Fullbright)", function()
     Lighting.Brightness = 2
     Lighting.ClockTime = 14
     Lighting.FogEnd = 100000
     Lighting.GlobalShadows = false
 end)
 
--- 4. OYUNCULAR (Avatar, TP, Spectate, Copy Outfit)
-local PlayerScroll = Instance.new("ScrollingFrame", t4)
-PlayerScroll.Size = UDim2.new(1, -10, 0, 380)
+AddActionButton("15. Guest 666 Efekti Patlat", function()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local exp = Instance.new("Explosion", workspace)
+        exp.Position = LocalPlayer.Character.HumanoidRootPart.Position
+    end
+end)
+
+-- =========================================================
+-- 👥 2. OYUNCULAR SEKMESİ (AVATAR, TP, SEE, COPY)
+-- =========================================================
+local PlayerScroll = Instance.new("ScrollingFrame", tPlayers)
+PlayerScroll.Size = UDim2.new(1, 0, 1, 0)
 PlayerScroll.BackgroundTransparency = 1
 PlayerScroll.CanvasSize = UDim2.new(0, 0, 0, 800)
 PlayerScroll.ScrollBarThickness = 3
 Instance.new("UIListLayout", PlayerScroll).Padding = UDim.new(0, 5)
 
-local function UpdatePlayers()
+local function UpdatePlayerList()
     for _, child in pairs(PlayerScroll:GetChildren()) do
         if child:IsA("Frame") then child:Destroy() end
     end
@@ -332,7 +383,7 @@ local function UpdatePlayers()
             end
         end)
 
-        -- Copy Look (HumanoidDescription Kopyalama)
+        -- Copy (Karakter Kopyala)
         local cpB = Instance.new("TextButton", card)
         cpB.Size = UDim2.new(0, 40, 0, 26)
         cpB.Position = UDim2.new(1, -42, 0.5, -13)
@@ -350,46 +401,19 @@ local function UpdatePlayers()
         end)
     end
 end
-UpdatePlayers()
-Players.PlayerAdded:Connect(UpdatePlayers)
-Players.PlayerRemoving:Connect(UpdatePlayers)
+UpdatePlayerList()
+Players.PlayerAdded:Connect(UpdatePlayerList)
+Players.PlayerRemoving:Connect(UpdatePlayerList)
 
--- 5. MÜZİK & EVENT
-local musicInp = Instance.new("TextBox", t5)
-musicInp.Size = UDim2.new(1, -10, 0, 30)
-musicInp.BackgroundColor3 = Color3.fromRGB(26, 16, 42)
-musicInp.PlaceholderText = "Sound ID Girin..."
-musicInp.Text = ""
-musicInp.TextColor3 = Color3.fromRGB(255, 255, 255)
-musicInp.Font = Enum.Font.Gotham
-musicInp.TextSize = 12
-Instance.new("UICorner", musicInp).CornerRadius = UDim.new(0, 5)
-
-local currentSnd = Instance.new("Sound", SoundService)
-AddButton(t5, "Lokal Müzik Çal", function()
-    local id = tonumber(musicInp.Text)
-    if id then
-        currentSnd.SoundId = "rbxassetid://" .. id
-        currentSnd.Volume = 2
-        currentSnd:Play()
-    end
-end)
-AddButton(t5, "Müziği Durdur", function() currentSnd:Stop() end)
-
-AddButton(t5, "Guest 666 Efekti Patlat", function()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local exp = Instance.new("Explosion", workspace)
-        exp.Position = LocalPlayer.Character.HumanoidRootPart.Position
-    end
-end)
-
--- 6. EXECUTOR
-local execBox = Instance.new("TextBox", t6)
-execBox.Size = UDim2.new(1, -10, 0, 180)
+-- =========================================================
+-- 💻 3. SCRIPT EXECUTOR SEKMESİ
+-- =========================================================
+local execBox = Instance.new("TextBox", tExec)
+execBox.Size = UDim2.new(1, 0, 0, 200)
 execBox.BackgroundColor3 = Color3.fromRGB(12, 8, 20)
 execBox.MultiLine = true
 execBox.ClearTextOnFocus = false
-execBox.Text = "print('PoorsHub Ready!')"
+execBox.Text = "print('PoorsHub Lua Executor Ready!')"
 execBox.TextColor3 = Color3.fromRGB(52, 211, 153)
 execBox.Font = Enum.Font.Code
 execBox.TextSize = 11
@@ -397,30 +421,76 @@ execBox.TextXAlignment = Enum.TextXAlignment.Left
 execBox.TextYAlignment = Enum.TextYAlignment.Top
 Instance.new("UICorner", execBox).CornerRadius = UDim.new(0, 5)
 
-AddButton(t6, "Kodu Çalıştır", function()
+local execBtn = Instance.new("TextButton", tExec)
+execBtn.Size = UDim2.new(1, 0, 0, 32)
+execBtn.Position = UDim2.new(0, 0, 0, 210)
+execBtn.BackgroundColor3 = Color3.fromRGB(124, 58, 237)
+execBtn.Text = "Kodu Çalıştır (Execute)"
+execBtn.Font = Enum.Font.GothamBold
+execBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+execBtn.TextSize = 12
+Instance.new("UICorner", execBtn).CornerRadius = UDim.new(0, 5)
+
+execBtn.MouseButton1Click:Connect(function()
     local func, err = loadstring(execBox.Text)
     if func then func() else warn(err) end
 end)
 
--- KISAYOLLAR & CHAT
+-- =========================================================
+-- 💬 CHAT KOMUTLARI V2 (@ SİSTEMİ DAHİL)
+-- =========================================================
+local function FindPlayerByPartialName(name)
+    local targetName = name:gsub("@", ""):lower()
+    for _, p in pairs(Players:GetPlayers()) do
+        if p.Name:lower():sub(1, #targetName) == targetName or p.DisplayName:lower():sub(1, #targetName) == targetName then
+            return p
+        end
+    end
+    return nil
+end
+
+LocalPlayer.Chatted:Connect(function(msg)
+    local args = string.split(msg, " ")
+    
+    -- Gui Toggle
+    if msg == "&&cmd" then
+        MainFrame.Visible = not MainFrame.Visible
+    -- Admin Tag
+    elseif msg == "adm" or msg == "000+e" then
+        pcall(function()
+            local chatArgs = {
+                [1] = "RPName",
+                [2] = "<font color='#8b5cf6'>[PoorsHub Admini]</font> " .. LocalPlayer.Name
+            }
+            ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(chatArgs[2], "All")
+        end)
+    -- Char Stealer Chat Command (Örn: char @OyuncuAdi)
+    elseif args[1] == "char" and args[2] then
+        local target = FindPlayerByPartialName(args[2])
+        if target and target.Character and LocalPlayer.Character then
+            local desc = target.Character:FindFirstChildOfClass("Humanoid"):GetAppliedDescription()
+            LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ApplyDescription(desc)
+        end
+    -- Goto Chat Command (Örn: goto @OyuncuAdi)
+    elseif args[1] == "goto" and args[2] then
+        local target = FindPlayerByPartialName(args[2])
+        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+        end
+    -- Spectate Chat Command (Örn: see @OyuncuAdi)
+    elseif args[1] == "see" and args[2] then
+        local target = FindPlayerByPartialName(args[2])
+        if target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") then
+            workspace.CurrentCamera.CameraSubject = target.Character:FindFirstChildOfClass("Humanoid")
+        end
+    end
+end)
+
+-- Sağ Shift Tuşu İle Açma / Kapama
 UserInputService.InputBegan:Connect(function(input, gpe)
     if not gpe and input.KeyCode == Enum.KeyCode.RightShift then
         MainFrame.Visible = not MainFrame.Visible
     end
 end)
 
-LocalPlayer.Chatted:Connect(function(msg)
-    if msg == "&&cmd" then
-        MainFrame.Visible = not MainFrame.Visible
-    elseif msg == "adm" or msg == "000+e" then
-        pcall(function()
-            local args = {
-                [1] = "RPName",
-                [2] = "<font color='#8b5cf6'>[PoorsHub Admini]</font> " .. LocalPlayer.Name
-            }
-            ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(args[2], "All")
-        end)
-    end
-end)
-
-print("PoorsHub Clean Real Edition Loaded!")
+print("PoorsHub Real v2.0 Successfully Loaded for Burak!")
